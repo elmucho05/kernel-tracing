@@ -1,5 +1,5 @@
 Per la riproduzione del problema:
-- al posto del task real-time di ESA, provare ad eseguire cyclictest, con opzioni come --tracemark o -b. Se il problema si riproduce, allora cyclictest scatenerà una azione di tracing. Dal tracing probabilmente capiremo di più sulla causa.
+- al posto del task real-time forniti, provare ad eseguire cyclictest, con opzioni come --tracemark o -b. Se il problema si riproduce, allora cyclictest scatenerà una azione di tracing. Dal tracing probabilmente capiremo di più sulla causa.
 
 Problema principale: scoprire la componente hardware, la componente kernel (interrupt handling, locking, ...) e la componente scheduling della latenza.
 
