@@ -1,4 +1,5 @@
 # Ftrace
+> [!TIP]
 > La documentazione seguente e' un traduzione della documentazione del Kernel Linux. Per approfondire l'argomento consultare la documentazione ufficiale [Ftrace](https://docs.kernel.org/trace/ftrace.html)
 
 **Ftrace** è un tracer interno progettato per aiutare gli sviluppatori e i progettisti di sistemi a comprendere cosa accade all'interno del kernel. Può essere utilizzato per il debugging o per analizzare latenze e problemi di prestazioni che si verificano al di fuori dello **user-space**.
@@ -19,19 +20,19 @@ Quando il tracefs e' configurato nel kernel, la directory `/sys/kernl/tracing` s
 
 Subito dopo il numero della CPU (es. `0`), ci sono 6 "slot" o colonne per le lettere. Se uno slot è vuoto, c'è un punto (`.`).
 
-1. **`irqs-off` (Gli interrupt hardware):**
+1. **`irqs-off` gli interrupt hardware:**
     
     - **`d`**: (Disabled) Gli interrupt hardware sono **spenti**. Il kernel è sordo, nessun altro dispositivo può disturbarlo.
         
     - **`.`**: Gli interrupt sono accesi. _(Esistono anche `b` o `D` se si disabilitano i "Bottom Halves" / SoftIRQs)._
         
-2. **`need-resched` (Il Post-it della sveglia):**
+2. **`need-resched` il post-it della sveglia:**
     
-    - **`N`** (o `n`): NEED_RESCHED. Il kernel ha ricevuto l'ordine di svegliare un task più importante (come il tuo _cyclictest_) e si è "appuntato" che deve chiamare lo scheduler appena possibile.
+    - **`N`** (o `n`): NEED_RESCHED. Il kernel ha ricevuto l'ordine di svegliare un task più importante (come il cyclictest) e si è "appuntato" che deve chiamare lo scheduler appena possibile.
         
     - **`.`**: Nessuna urgenza di cambiare task.
         
-3. **`hardirq / softirq` (Dove ci troviamo?):**
+3. **`hardirq / softirq` dove ci troviamo:**
     
     - **`h`**: (Hard IRQ) Stiamo eseguendo il codice di emergenza di un **interrupt hardware** (es. il timer o la scheda di rete).
         
@@ -39,13 +40,12 @@ Subito dopo il numero della CPU (es. `0`), ci sono 6 "slot" o colonne per le let
         
     - **`.`**: Siamo nel normale flusso di un processo, fuori dalle emergenze.
         
-4. **`preempt-depth` (Il lucchetto dello scheduler):**
-    
+4. **`preempt-depth` il "lock" dello scheduler:**
     - Un numero (es. **`1`**, **`2`**, **`3`**...): Indica quanti "lucchetti" di preemption sono stati chiusi. Finché questo numero è maggiore di 0, lo scheduler è paralizzato e non può buttare fuori il task corrente per farne entrare un altro.
         
     - **`.`**: La preemption è abilitata (profondità 0). Lo scheduler è libero di agire.
         
-5. **`migrate-disable` (Il vincolo sul core - _Tipico di PREEMPT_RT_):**
+5. **`migrate-disable` il vincolo sul core - _Tipico di PREEMPT_RT_):**
     
     - Un numero (es. **`1`**): Il task ha chiesto di non essere "migrato" su un altro core (vuole rimanere per forza sulla CPU 0).
         
