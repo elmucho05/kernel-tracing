@@ -1,3 +1,6 @@
+# Ftrace
+> La documentazione seguente e' un traduzione della documentazione del Kernel Linux. Per approfondire l'argomento consultare la documentazione ufficiale [Ftrace](https://docs.kernel.org/trace/ftrace.html)
+
 **Ftrace** è un tracer interno progettato per aiutare gli sviluppatori e i progettisti di sistemi a comprendere cosa accade all'interno del kernel. Può essere utilizzato per il debugging o per analizzare latenze e problemi di prestazioni che si verificano al di fuori dello **user-space**.
 
 Sebbene ftrace sia tipicamente considerato un tracer di funzioni (**function tracer**), in realtà è un framework composto da diverse utilità di tracing. Esiste il tracing delle latenze per esaminare ciò che accade tra la disattivazione e l'attivazione degli interrupt, così come per la **preemption** e per misurare il tempo che intercorre dal momento in cui un task viene risvegliato a quando viene effettivamente pianificato (**scheduled in**).
@@ -8,8 +11,6 @@ Ftrace usa il tracefs file system per tenere i file di controllo ed anche i file
 
 Quando il tracefs e' configurato nel kernel, la directory `/sys/kernl/tracing` sara' creata. 
 
-Ecco una lista dei file disponibili all'interno di quella directory(tutti i valori sono in microsecondi):
-- [Ftrace](https://docs.kernel.org/trace/ftrace.html)
 
 ### Formato di una generica traccia
 Quando l'opzione di *latency-formato* e' abilitata oppure quando uno dei tracer di latenza e' impostato, il file `trace` ci permette di comprendere meglio il perche' di una determinata latenza. Ecco una tipica traccia :
