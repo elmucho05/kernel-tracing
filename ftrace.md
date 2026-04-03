@@ -12,6 +12,49 @@ Ftrace usa il tracefs file system per tenere i file di controllo ed anche i file
 Quando il tracefs e' configurato nel kernel, la directory `/sys/kernl/tracing` sara' creata. 
 
 
+### La Legenda Universale (Cosa significano le 6 colonne)
+> [!IMPORTANT]
+> Dopo la seguente sezione si trova in modo dettagliato la spiegazione di moltissimi concetti. La parte piu' importante pero' e' capire il significato della seguente notazione : `0dNh.`
+
+
+Subito dopo il numero della CPU (es. `0`), ci sono 6 "slot" o colonne per le lettere. Se uno slot è vuoto, c'è un punto (`.`).
+
+1. **`irqs-off` (Gli interrupt hardware):**
+    
+    - **`d`**: (Disabled) Gli interrupt hardware sono **spenti**. Il kernel è sordo, nessun altro dispositivo può disturbarlo.
+        
+    - **`.`**: Gli interrupt sono accesi. _(Esistono anche `b` o `D` se si disabilitano i "Bottom Halves" / SoftIRQs)._
+        
+2. **`need-resched` (Il Post-it della sveglia):**
+    
+    - **`N`** (o `n`): NEED_RESCHED. Il kernel ha ricevuto l'ordine di svegliare un task più importante (come il tuo _cyclictest_) e si è "appuntato" che deve chiamare lo scheduler appena possibile.
+        
+    - **`.`**: Nessuna urgenza di cambiare task.
+        
+3. **`hardirq / softirq` (Dove ci troviamo?):**
+    
+    - **`h`**: (Hard IRQ) Stiamo eseguendo il codice di emergenza di un **interrupt hardware** (es. il timer o la scheda di rete).
+        
+    - **`s`**: (Soft IRQ) Stiamo eseguendo un interrupt software (lavori in background del kernel).
+        
+    - **`.`**: Siamo nel normale flusso di un processo, fuori dalle emergenze.
+        
+4. **`preempt-depth` (Il lucchetto dello scheduler):**
+    
+    - Un numero (es. **`1`**, **`2`**, **`3`**...): Indica quanti "lucchetti" di preemption sono stati chiusi. Finché questo numero è maggiore di 0, lo scheduler è paralizzato e non può buttare fuori il task corrente per farne entrare un altro.
+        
+    - **`.`**: La preemption è abilitata (profondità 0). Lo scheduler è libero di agire.
+        
+5. **`migrate-disable` (Il vincolo sul core - _Tipico di PREEMPT_RT_):**
+    
+    - Un numero (es. **`1`**): Il task ha chiesto di non essere "migrato" su un altro core (vuole rimanere per forza sulla CPU 0).
+        
+    - **`.`**: Può essere spostato su altre CPU.
+        
+6. **`delay` (Ritardi sospetti):**
+    
+    - Più che una colonna fissa, a volte vedrai apparire un `+`, un `!` o un `#` prima del timestamp se c'è un ritardo anomalo o prolungato in quell'istante.
+
 ### Formato di una generica traccia
 Quando l'opzione di *latency-formato* e' abilitata oppure quando uno dei tracer di latenza e' impostato, il file `trace` ci permette di comprendere meglio il perche' di una determinata latenza. Ecco una tipica traccia :
 
@@ -49,6 +92,7 @@ Quando l'opzione di *latency-formato* e' abilitata oppure quando uno dei tracer 
  => sys_read
  => system_call_fastpath
 ```
+
 
 
 Questa traccia mostra che il tracer corrente e' `irqsoff` il quale traccia il tempo nel quale gli interrupt sono stati abilitati. 
