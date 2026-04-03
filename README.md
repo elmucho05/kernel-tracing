@@ -4,9 +4,6 @@ Questa repository contiene appunti e tracce per l'analisi del kernel Linux
 
 ### Strumenti di Diagnostica: Panoramica dei tool essenziali per l'analisi del sistema.
 
-* [Debug nel Kernel](debug-nel-kernel.md): tecniche e approcci per il debugging del kernel space.
-
-
 #### Tracing
 
 * [Ftrace](ftrace.md) : guida approfondita all'uso di Ftrace, Function Graph e latenze.
