@@ -382,8 +382,8 @@ Vediamo cosa succede nel momento esatto del risveglio:
     - `4`: Profondità di preemption.
 - **`0:120:R + [003] 2389: 94:R sleep`**:
     - Il task `0` (idle) con priorità kernel `120` sta svegliando (`+`) il task `2389` (sleep) sulla CPU `003`.
-    - **94**: Questa è la priorità interna del kernel. Si calcola come ($99 - \text{rt\_prio}$), quindi $99 - 5 = 94$.
-    - **R**: Il task è ora in stato "Running" (pronto a correre).
+    - **94**: Questa è la priorità interna del kernel. Si calcola come ($99 - {}$ rt_prio ), quindi $99 - 5 = 94$.
+    - **R**: Il task è ora in stato "Running"
 
 #### Il Cambio di Contesto (Context Switch)
 
@@ -395,7 +395,7 @@ Vediamo cosa succede nel momento esatto del risveglio:
 - **5us**: Dopo 5 microsecondi, viene chiamata la funzione `__schedule`.
 - **`==>`**: Questo simbolo indica il **cambio di contesto**. Il processo idle lascia il posto al processo `sleep`.
   
-Il `0:120:R` significa idle stava eseguendo con una priority di 0 (120-120) e nello stato running R. Il task di `sleep` era stato schedulato con 2389:94:R. Quella e' la priority del kernel e anche lui e' n stato running
+Il `0:120:R` significa idle  che era il task 0 stava eseguendo con una priority di 120 e nello stato running R. Il task di `sleep` era stato schedulato con 2389:94:R. Quella e' la priority del kernel e anche lui e' nello stato running
 ### 3. Punti Chiave da Ricordare
 
 1. **Punto di arresto**: Il tracciamento si ferma un istante prima che il task inizi effettivamente a eseguire il proprio codice. Si ferma dentro lo scheduler quando il cambio è ormai deciso.
