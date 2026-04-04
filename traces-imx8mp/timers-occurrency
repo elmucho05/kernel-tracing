@@ -1,6 +1,6 @@
 Vi sono tante righe con function=tick_sched_timer
 - e' esattamente il "tick di sistema" che fa housekeeping).
-Vediamo che scatta regolarmente (es. a ...366825, poi a ...367820, poi a ...368820). Quello gira in sottofondo indipendentemente da quello che fai, ma NON è lui a svegliare cyclictest. È solo rumore.
+Vediamo che scatta regolarmente (es. a ...366825, poi a ...367820, poi a ...368820). Quello gira in sottofondo indipendentemente da quello che succede, ma NON è lui a svegliare cyclictest. È solo rumore.
 - o meglio, a volte si, ma vogliamo vedere se magari dopo e non solo all'inizio venga usato un timer specifico
 - andiamo alla ricerca di function=hrtimer_wakeup
 cpus=4

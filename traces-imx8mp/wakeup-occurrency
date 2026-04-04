@@ -130,12 +130,12 @@ kworker/-7         0dNh.1   57us : irqtime_account_irq <-__irq_exit_rcu
 
 
 kworker/-7         0dNh.1   58us : preempt_count_sub <-__irq_exit_rcu
-Da 1 µs a 58 µs, sei dentro l'interrupt della Mailbox (l'evento di partenza). 
-A 58 µs vedi la funzione irq_exit_rcu. L'hardware ha ufficialmente finito! Il kernel spegne la lettera h perché la prima emergenza è rientrata
+Da 1 µs a 58 µs, sei dentro l'interrupt dell'evento di partenza). 
+A 58 µs vedi la funzione irq_exit_rcu. L'hardware ha ufficialmente finito! Il kernel spegne la lettera h perché la prima emergenza(gestione dell'interrupt) è rientrata
 
 kworker/-7         0dN..1   58us : idle_cpu <-__irq_exit_rcu
 
-gia' qui vedi che e' arrivato un interrupt E lo si sta "preparando"
+già qui vedi che è arrivato un interrupt E lo si sta "preparando"
 kworker/-7         0dN..1   59us : preempt_schedule_irq <-el1_interrupt
 kworker/-7         0dN..1   60us : preempt_count_add <-preempt_schedule_irq
 kworker/-7         0dN.11   61us : irq_enter_rcu <-el1_interrupt
@@ -288,8 +288,8 @@ kworker/-7         0dN.11  165us : idle_cpu <-__irq_exit_rcu
 
 
 kworker/-7         0dN.11  167us : rcu_note_context_switch <-__schedule
-è la prima volta in cui la funzione __schedule compare come madre(chiamante), chiama la funzione figlio rcu_note_context_switch
-ora finalmente il kernel ha finisto di gestire gli interrupt e ha chiamato lo scheduler
+è la prima volta in cui la funzione __schedule compare come chiamante, chiama la funzione figlio rcu_note_context_switch
+ora finalmente il kernel ha finito di gestire gli interrupt e ha chiamato lo scheduler
 - in particolare cerco di fare un context switch
 
 
@@ -304,7 +304,7 @@ kworker/-7         0dN.31  173us : preempt_count_sub <-__schedule
 kworker/-7         0dN.21  173us : balance_fair <-__schedule
 
 kworker/-7         0dN.21  174us : put_prev_task_fair <-__schedule   
-(Prende il kworker e lo mette a riposo)
+Prende il kworker e lo mette a riposo(fair penso sia quello)
 
 
 kworker/-7         0dN.21  175us : __update_curr.isra.0 <-put_prev_task_fair
@@ -323,7 +323,7 @@ kworker/-7         0dN.21  180us : update_rt_rq_load_avg <-pick_next_task_rt
 
 
 kworker/-7         0d..21  181us : __do_set_cpus_allowed <-__schedule
-Ha spento lo NEED-RESCHED, e' stato scelto il nuovo processo da subentrare,
+Ha spento lo NEED-RESCHED, è stato scelto il nuovo processo da subentrare,
 MAAA devo ancora finire il context switch
 
 kworker/-7         0d..21  182us : dequeue_task_fair <-__do_set_cpus_allowed
@@ -344,10 +344,9 @@ kworker/-7         0d..31  192us : __schedule <-preempt_schedule_irq
 
 kworker/-7         0d..31  193us :        7:120:R ==> [000]     122: 49:R irq/32-imx_mu_c
 cambiare materialmente i registri della CPU, ecco dove vediamo ==>
-	Il processo che viene svegliato d'urgenza è il thread del kernel che gestisce gli interrupt della Mailbox (imx_mu_c). Ha priorità Real-Time 50.
+	Il processo che viene svegliato d'urgenza è il thread del kernel che gestisce gli interrupt della Mailbox (imx_mu_c). Ha prio RT 50.
 
-L'Interrotto (L'Operaio): È il nostro vecchio "amico", il kworker/-7. E se guardi lo stack trace iniziale, stava facendo esattamente quello che faceva nella traccia da 1400 µs: stava inviando messaggi per la grafica (virtio_rpmsg_send, imx_mu_send_data).
-
+Il task interrotto e' il kworker/-7 che sembra stesse inviando messaggi alla mailbox di imx probabilmente per la gestione della grafica(qua sono ancora con gui spenta attenzione)
 
 kworker/-7         0d..31  198us : <stack trace>
  => __trace_stack

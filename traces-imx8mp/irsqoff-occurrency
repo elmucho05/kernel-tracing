@@ -195,18 +195,17 @@ kworker/-141       0d.h4.  127us : preempt_count_sub <-enqueue_task_rt
 kworker/-141       0d.h3.  127us : enqueue_top_rt_rq <-enqueue_task_rt
 kworker/-141       0d.h3.  128us : check_preempt_curr <-ttwu_do_activate.isra.0
 kworker/-141       0d.h3.  129us : __resched_curr.constprop.0 <-check_preempt_curr
-Il kernel ha appena finito di elaborare l'evento del timer e ha messo il task Real-Time (es. cyclictest) nella lista dei processi pronti a partire.
-In quel microsecondo, il kernel "alza la bandierina N".
-Quando il kernel alza la bandierina "N", sta dicendo a se stesso: "Attenzione! È appena successo qualcosa di molto importante (come una sveglia). Appena ho finito quello che sto facendo, non devo tornare al programma di prima, ma devo fermarmi e chiamare lo scheduler per fare un cambio di processo!"
+Il kernel ha appena finito di elaborare l'evento del timer e ha messo il task RT(cyclictest) nella lista dei processi pronti. In quel microsecondo, il kernel alza il flag N.
+Quando il kernel alza N, sta dicendo a se stesso che sta succedendo qualcosa du importante. Appena ho finito quello che sto facendo, non devo tornare al programma di prima, ma devo fermarmi e chiamare lo scheduler per fare il context switch. (guarda la documentazione su ftrace)
 
-Perché in quel momento il kernel si trova dentro un Interrupt Handler hardware (lo capisci dalla lettera h nella sigla 0dNh..).
-- Non puoi MAI chiamare lo scheduler o fare context switch mentre sei dentro un interrupt hardware.
+Siccome in quel momento il kernel si trova dentro un interrupt handler hardware (si vede dalla lettera h nella sigla 0dNh..)
+- non puoi MAI chiamare lo scheduler o fare context switch mentre sei dentro un interrupt hardware.
 
-con il Post-it "N" attaccato in fronte, il kernel si sbriga a fare le valigie per chiudere l'interrupt in modo pulito e sicuro:
+con "N" il kernel si sbriga a finire le operazioni per chiudere l'interrupt:
 kworker/-141       0dNh3.  130us : task_woken_rt <-ttwu_do_activate.isra.0
 
 kworker/-141       0dNh2.  130us : _raw_spin_unlock_irqrestore <-try_to_wake_up
-  Rilascia tutti i lucchetti (i vari _raw_spin_unlock_irqrestore).
+  Rilascia tutti i lock (i vari _raw_spin_unlock_irqrestore).
 
 kworker/-141       0dNh2.  131us : preempt_count_sub <-_raw_spin_unlock_irqrestore
 kworker/-141       0dNh1.  132us : preempt_count_sub <-try_to_wake_up
@@ -281,8 +280,7 @@ kworker/-141       0dNh..  202us : preempt_count_add <-_raw_spin_lock
 kworker/-141       0dNh1.  203us : preempt_count_sub <-handle_edge_irq
 
 kworker/-141       0dNh..  203us : gic_eoimode1_eoi_irq <-dw_chained_msi_isr
-    Comunica al chip hardware del processore che l'interrupt è stato gestito (gic_eoimode1_eoi_irq -> End Of Interrupt).
-    
+    comunica al hardware del processore che l'interrupt è stato gestito (gic_eoimode1_eoi_irq -> End Of Interrupt).
 
 
 kworker/-141       0dNh..  204us : irq_exit_rcu <-el1_interrupt
@@ -293,10 +291,9 @@ kworker/-141       0dNh..  206us : preempt_count_sub <-__irq_exit_rcu
 kworker/-141       0dN...  206us : idle_cpu <-__irq_exit_rcu
 
 kworker/-141       0dN...  207us : preempt_schedule_irq <-el1_interrupt
-A fine traccia (207 µs), l'interrupt hardware è ufficialmente chiuso. Il kernel sta per tornare al kworker interrotto all'inizio.
+A fine traccia (207 µs), l'interrupt hardware è finalmente chiuso. Il kernel sta per tornare al kworker interrotto all'inizio.
 
-
-MA prima di farlo, controlla se ha dei Post-it in fronte.
+MA prima di farlo, controlla se ha dei "N" impostati.
 A questo punto, invece di tornare al kworker, il kernel esegue l'ultima istruzione della traccia:
 
 
