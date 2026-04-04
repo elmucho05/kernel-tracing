@@ -2,7 +2,7 @@
 
 Questa repository contiene appunti e tracce per l'analisi del kernel Linux
 
-### Strumenti di Diagnostica: Panoramica dei tool essenziali per l'analisi del sistema.
+### Strumenti di diagnostica
 
 #### Tracing
 
@@ -12,4 +12,4 @@ Questa repository contiene appunti e tracce per l'analisi del kernel Linux
 
 ### Tracce Reali
 
-* Traces IMX8MP: directory contenente i log e le tracce catturate sulla piattaforma i.MX8M Plus.
+* [Traces IMX8MP](./traces-imx8mp): directory contenente i log e le tracce catturate sulla piattaforma i.MX8M Plus.
