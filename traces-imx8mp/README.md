@@ -2,7 +2,7 @@ Questo directory contiene i log e le analisi di tracing eseguite sul kernel Linu
 
 L'obiettivo dell'analisi è isolare, riconoscere e misurare i pattern fisiologici di addormentamento (sleep) e risveglio (wakeup) di un task Real-Time (`cyclictest`), distinguendoli dal rumore di fondo del sistema operativo e identificando l'infrastruttura di gestione dei timer e degli interrupt.
 
-## 1. Struttura della Directory e Guida alla Lettura
+## 1. Struttura della directory e guida alla lettura
 
 I file all'interno di questa directory seguono una un pattern di naming per separare i dati grezzi dalle analisi estratte:
 
@@ -15,7 +15,7 @@ I file all'interno di questa directory seguono una un pattern di naming per sepa
 * `traccia_irqsoff` / `irsqoff-occurrency`
 * `traccia_wakeup` / `wakeup-occurrency`
 
-## 2. Comandi di Generazione Tracce (`trace-cmd`)
+## 2. Comandi di generazione tracce (`trace-cmd`)
 
 Per garantire la coerenza dell'analisi e minimizzare le migrazioni di processo, tutti i test sono stati eseguiti bloccando `cyclictest` su un singolo core (`-a 1`), impostando priorità FIFO massima (`-p 99`) e un ciclo di sleep di 1 millisecondo (`-i 1000`).
 Le interfacce grafiche (HMI) e i carichi di memoria artificiali sono stati tenuti spenti 
@@ -55,7 +55,7 @@ trace-cmd report > nome_traccia
 
 
 
-## 3. Risultati e Analisi dei Pattern (Occurrencies)
+## 3. Risultati e Analisi dei pattern occurrencies
 
 Di seguito l'analisi dei fenomeni isolati documentati nei rispettivi file `*-occurrency`.
 ### A. Function Graph (`funcgraph-occurrency`)

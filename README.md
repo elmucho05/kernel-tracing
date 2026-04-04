@@ -1,15 +1,13 @@
-# Kernel Hacking & Tracing
+# Tracing
 
-Questa repository contiene appunti e tracce per l'analisi del kernel Linux
+Questa repository contiene appunti e tracce per l'analisi dei task real-time e delle relative latenze nel kernel Linux con la patch PREEMPT_RT.
 
-### Strumenti di diagnostica
 
-#### Tracing
+### Documentazione
 
-* [Ftrace](ftrace.md) : guida approfondita all'uso di Ftrace, Function Graph e latenze.
+* [Ftrace](ftrace.md) : guida all'uso di Ftrace, Function Graph e latenze.
+* [Interrupts](interrupts.md) : gestione degli interrupt generale e nel kernel linux
 
-* [Interrupts](interrupts.md): Analisi della gestione degli interrupt e degli eventi hardware.
+### Tracce reali
 
-### Tracce Reali
-
-* [Traces IMX8MP](./traces-imx8mp): directory contenente i log e le tracce catturate sulla piattaforma i.MX8M Plus.
+* [Traces IMX8MP](./traces-imx8mp): directory contenente i log e le tracce catturate sulla i.MX8M Plus.
