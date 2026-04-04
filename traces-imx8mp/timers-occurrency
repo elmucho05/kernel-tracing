@@ -1,0 +1,181 @@
+Vi sono tante righe con function=tick_sched_timer
+- e' esattamente il "tick di sistema" che fa housekeeping).
+Vediamo che scatta regolarmente (es. a ...366825, poi a ...367820, poi a ...368820). Quello gira in sottofondo indipendentemente da quello che fai, ma NON è lui a svegliare cyclictest. È solo rumore.
+- o meglio, a volte si, ma vogliamo vedere se magari dopo e non solo all'inizio venga usato un timer specifico
+- andiamo alla ricerca di function=hrtimer_wakeup
+cpus=4
+          <idle>-0     [000]  1152.366825: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152362003625
+          <idle>-0     [001]  1152.366825: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152362004000
+          <idle>-0     [002]  1152.366825: hrtimer_expire_entry: hrtimer=0xffff00003cdc9138 function=tick_sched_timer now=1152362003625
+          <idle>-0     [001]  1152.366841: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [000]  1152.366842: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+          <idle>-0     [002]  1152.366842: hrtimer_expire_exit:  hrtimer=0xffff00003cdc9138
+          <idle>-0     [000]  1152.366843: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152363000000 softexpires=1152363000000 mode=0x0
+          <idle>-0     [001]  1152.366843: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152363000000 softexpires=1152363000000 mode=0x0
+          <idle>-0     [002]  1152.366843: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152363000000 softexpires=1152363000000 mode=0x0
+          <idle>-0     [002]  1152.366889: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152365000000 softexpires=1152365000000 mode=0xa
+    kworker/0:1H-119   [000]  1152.367581: hrtimer_start:        hrtimer=0xffff00000457dd58 function=pm_suspend_timer_fn expires=1152425260250 softexpires=1152412760250 mode=0x0
+          <idle>-0     [000]  1152.367819: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152363002000
+      cyclictest-1454  [001]  1152.367820: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152363001875
+      cyclictest-1454  [001]  1152.367829: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+      cyclictest-1454  [001]  1152.367830: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152364000000 softexpires=1152364000000 mode=0x0
+          <idle>-0     [000]  1152.367830: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+          <idle>-0     [000]  1152.367831: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152364000000 softexpires=1152364000000 mode=0x0
+          <idle>-0     [002]  1152.367841: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152364000000 softexpires=1152364000000 mode=0xa
+          <idle>-0     [002]  1152.367863: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152365000000 softexpires=1152365000000 mode=0xa
+          <idle>-0     [000]  1152.368820: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152364002125
+      cyclictest-1454  [001]  1152.368820: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152364002125
+      cyclictest-1454  [001]  1152.368827: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+      cyclictest-1454  [001]  1152.368828: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152365000000 softexpires=1152365000000 mode=0x0
+          <idle>-0     [000]  1152.368829: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+          <idle>-0     [000]  1152.368830: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152365000000 softexpires=1152365000000 mode=0x0
+          <idle>-0     [000]  1152.369821: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152365002625
+      cyclictest-1454  [001]  1152.369822: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152365002875
+          <idle>-0     [002]  1152.369823: hrtimer_expire_entry: hrtimer=0xffff00003cdc9138 function=tick_sched_timer now=1152365006125
+          <idle>-0     [000]  1152.369827: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+          <idle>-0     [000]  1152.369828: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152366000000 softexpires=1152366000000 mode=0x0
+      cyclictest-1454  [001]  1152.369829: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+      cyclictest-1454  [001]  1152.369830: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152366000000 softexpires=1152366000000 mode=0x0
+          <idle>-0     [002]  1152.369832: hrtimer_expire_exit:  hrtimer=0xffff00003cdc9138
+          <idle>-0     [002]  1152.369839: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152366000000 softexpires=1152366000000 mode=0xa
+          <idle>-0     [002]  1152.369882: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152735000000 softexpires=1152735000000 mode=0xa
+          <idle>-0     [000]  1152.370822: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152366003250
+      cyclictest-1454  [001]  1152.370822: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152366003250
+      cyclictest-1454  [001]  1152.370837: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [000]  1152.370838: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+          <idle>-0     [000]  1152.370839: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152367000000 softexpires=1152367000000 mode=0x0
+      cyclictest-1454  [001]  1152.370839: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152367000000 softexpires=1152367000000 mode=0x0
+          <idle>-0     [002]  1152.370848: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152367000000 softexpires=1152367000000 mode=0xa
+          <idle>-0     [002]  1152.370869: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152735000000 softexpires=1152735000000 mode=0xa
+          <idle>-0     [000]  1152.371823: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152367004000
+      cyclictest-1454  [001]  1152.371823: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152367004000
+          <idle>-0     [000]  1152.371831: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+          <idle>-0     [000]  1152.371833: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152368000000 softexpires=1152368000000 mode=0x0
+      cyclictest-1454  [001]  1152.371835: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+      cyclictest-1454  [001]  1152.371836: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152368000000 softexpires=1152368000000 mode=0x0
+          <idle>-0     [000]  1152.372820: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152368002375
+      cyclictest-1454  [001]  1152.372820: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152368002000
+          <idle>-0     [000]  1152.372826: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+      cyclictest-1454  [001]  1152.372826: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [000]  1152.372827: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152369000000 softexpires=1152369000000 mode=0x0
+      cyclictest-1454  [001]  1152.372827: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152369000000 softexpires=1152369000000 mode=0x0
+      cyclictest-1454  [001]  1152.373819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152369001750
+          <idle>-0     [000]  1152.373820: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152369002375
+      cyclictest-1454  [001]  1152.373824: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+      cyclictest-1454  [001]  1152.373825: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152370000000 softexpires=1152370000000 mode=0x0
+          <idle>-0     [000]  1152.373827: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+          <idle>-0     [000]  1152.373828: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152370000000 softexpires=1152370000000 mode=0x0
+          <idle>-0     [002]  1152.373957: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152370000000 softexpires=1152370000000 mode=0xa
+          <idle>-0     [002]  1152.373994: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152735000000 softexpires=1152735000000 mode=0xa
+            sshd-1396  [000]  1152.374204: hrtimer_start:        hrtimer=0xffff000005789348 function=stmmac_tx_timer expires=1152370386000 softexpires=1152370386000 mode=0x1
+            sshd-1396  [000]  1152.374242: hrtimer_start:        hrtimer=0xffff800081f8b8e0 function=hrtimer_wakeup expires=1167384415623 softexpires=1167369415625 mode=0x0
+          <idle>-0     [000]  1152.374822: hrtimer_expire_entry: hrtimer=0xffff00003cd8d138 function=tick_sched_timer now=1152370002750
+      cyclictest-1454  [001]  1152.374822: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152370002750
+          <idle>-0     [000]  1152.374838: hrtimer_expire_exit:  hrtimer=0xffff00003cd8d138
+      cyclictest-1454  [001]  1152.374838: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+      cyclictest-1454  [001]  1152.374839: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152371000000 softexpires=1152371000000 mode=0x0
+          <idle>-0     [000]  1152.374840: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152371000000 softexpires=1152371000000 mode=0x0
+          <idle>-0     [000]  1152.374880: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+      cyclictest-1454  [001]  1152.374942: hrtimer_start:        hrtimer=0xffff800084123d30 function=hrtimer_wakeup expires=1152380174875 softexpires=1152380124875 mode=0x1
+          <idle>-0     [000]  1152.375147: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152371000000 softexpires=1152371000000 mode=0xa
+       ktimers/0-16    [000]  1152.375297: hrtimer_expire_entry: hrtimer=0xffff000005789348 function=stmmac_tx_timer now=1152370479000
+       ktimers/0-16    [000]  1152.375300: hrtimer_expire_exit:  hrtimer=0xffff000005789348
+       
+       cyclictest (PID 1455) dice al kernel: punta un HRTimer speciale che esegua la funzione hrtimer_wakeup 
+       Falla suonare esattamente al tempo 71488375 e poi va a dormire
+      cyclictest-1455  [001]  1152.375309: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152371488375 softexpires=1152371488375 mode=0x8
+          <idle>-0     [000]  1152.375426: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.375821: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152371003875
+          <idle>-0     [001]  1152.375828: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.375829: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152372000000 softexpires=1152372000000 mode=0x0
+          <idle>-0     [000]  1152.376147: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152372000000 softexpires=1152372000000 mode=0xa
+          
+          cosa succede: la CPU 1 era a riposo (<idle>). Improvvisamente l'hardware fa scattare l'interrupt dell'HRTimer. 
+          Il kernel esegue hrtimer_expire_entry per la funzione hrtimer_wakeup. Non sta facendo housekeeping, sta solo svegliando cyclictest
+          Guarda il tempo richiesto (expires=...488375) e il tempo reale in cui ha suonato (now=...490250). Ha suonato con un piccolissimo ritardo(penso normale)
+          <idle>-0     [001]  1152.376307: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152371490250
+          <idle>-0     [001]  1152.376310: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+          
+      appena 17 microsecondi dopo che la sveglia ha suonato (da 376307 a 376324), cyclictest è già di nuovo operativo sulla CPU e imposta il timer successivo    
+      cyclictest-1455  [001]  1152.376324: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152372488375 softexpires=1152372488375 mode=0x8
+          <idle>-0     [000]  1152.376378: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.376819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152372001875
+          <idle>-0     [001]  1152.376825: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.376826: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152373000000 softexpires=1152373000000 mode=0x0
+          <idle>-0     [000]  1152.377147: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152373000000 softexpires=1152373000000 mode=0xa
+          <idle>-0     [001]  1152.377308: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152372491125
+          <idle>-0     [001]  1152.377311: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.377324: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152373488375 softexpires=1152373488375 mode=0x8
+          <idle>-0     [000]  1152.377374: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.377819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152373001750
+          <idle>-0     [001]  1152.377830: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.377831: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152374000000 softexpires=1152374000000 mode=0x0
+          <idle>-0     [000]  1152.377840: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152374000000 softexpires=1152374000000 mode=0xa
+          <idle>-0     [002]  1152.377855: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152374000000 softexpires=1152374000000 mode=0xa
+          <idle>-0     [000]  1152.377865: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [002]  1152.377881: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152377000000 softexpires=1152377000000 mode=0xa
+          <idle>-0     [000]  1152.378145: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152374000000 softexpires=1152374000000 mode=0xa
+          <idle>-0     [001]  1152.378309: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152373490250
+          <idle>-0     [001]  1152.378311: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.378323: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152374488375 softexpires=1152374488375 mode=0x8
+          <idle>-0     [000]  1152.378378: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.378819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152374001875
+          <idle>-0     [001]  1152.378824: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.378825: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152375000000 softexpires=1152375000000 mode=0x0
+          <idle>-0     [000]  1152.379145: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152375000000 softexpires=1152375000000 mode=0xa
+          <idle>-0     [001]  1152.379309: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152374491875
+          <idle>-0     [001]  1152.379311: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.379323: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152375488375 softexpires=1152375488375 mode=0x8
+          <idle>-0     [000]  1152.379377: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.379819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152375001750
+          <idle>-0     [001]  1152.379824: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.379825: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152376000000 softexpires=1152376000000 mode=0x0
+          <idle>-0     [000]  1152.380146: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152376000000 softexpires=1152376000000 mode=0xa
+          <idle>-0     [001]  1152.380307: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152375489875
+          <idle>-0     [001]  1152.380309: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.380323: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152376488375 softexpires=1152376488375 mode=0x8
+          <idle>-0     [000]  1152.380374: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.380819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152376001750
+          <idle>-0     [001]  1152.380824: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.380825: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152377000000 softexpires=1152377000000 mode=0x0
+          <idle>-0     [000]  1152.381146: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152377000000 softexpires=1152377000000 mode=0xa
+          <idle>-0     [001]  1152.381307: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152376490125
+          <idle>-0     [001]  1152.381310: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.381321: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152377488375 softexpires=1152377488375 mode=0x8
+          <idle>-0     [000]  1152.381373: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.381819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152377001875
+          <idle>-0     [001]  1152.381821: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [002]  1152.381822: hrtimer_expire_entry: hrtimer=0xffff00003cdc9138 function=tick_sched_timer now=1152377004750
+          <idle>-0     [001]  1152.381822: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152378000000 softexpires=1152378000000 mode=0x0
+          <idle>-0     [002]  1152.381831: hrtimer_expire_exit:  hrtimer=0xffff00003cdc9138
+          <idle>-0     [002]  1152.381835: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152378000000 softexpires=1152378000000 mode=0xa
+          <idle>-0     [002]  1152.381874: hrtimer_start:        hrtimer=0xffff00003cdc9138 function=tick_sched_timer expires=1152735000000 softexpires=1152735000000 mode=0xa
+          <idle>-0     [000]  1152.382145: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152378000000 softexpires=1152378000000 mode=0xa
+          <idle>-0     [001]  1152.382307: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152377490125
+          <idle>-0     [001]  1152.382311: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.382322: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152378488375 softexpires=1152378488375 mode=0x8
+          <idle>-0     [000]  1152.382371: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.382821: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152378001750
+          <idle>-0     [001]  1152.382828: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.382829: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152379000000 softexpires=1152379000000 mode=0x0
+          <idle>-0     [000]  1152.382834: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152379000000 softexpires=1152379000000 mode=0xa
+          <idle>-0     [000]  1152.382849: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [000]  1152.383145: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152379000000 softexpires=1152379000000 mode=0xa
+          <idle>-0     [001]  1152.383308: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152378490375
+          <idle>-0     [001]  1152.383310: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.383324: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152379488375 softexpires=1152379488375 mode=0x8
+          <idle>-0     [000]  1152.383372: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.383819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152379001875
+          <idle>-0     [001]  1152.383825: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.383825: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152380000000 softexpires=1152380000000 mode=0x0
+          <idle>-0     [000]  1152.384145: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152380000000 softexpires=1152380000000 mode=0xa
+          <idle>-0     [001]  1152.384308: hrtimer_expire_entry: hrtimer=0xffff80008412bd30 function=hrtimer_wakeup now=1152379490375
+          <idle>-0     [001]  1152.384310: hrtimer_expire_exit:  hrtimer=0xffff80008412bd30
+      cyclictest-1455  [001]  1152.384323: hrtimer_start:        hrtimer=0xffff80008412bd30 function=hrtimer_wakeup expires=1152380488375 softexpires=1152380488375 mode=0x8
+          <idle>-0     [000]  1152.384376: hrtimer_start:        hrtimer=0xffff00003cd8d138 function=tick_sched_timer expires=1152599000000 softexpires=1152599000000 mode=0xa
+          <idle>-0     [001]  1152.384819: hrtimer_expire_entry: hrtimer=0xffff00003cdab138 function=tick_sched_timer now=1152380001750
+          <idle>-0     [001]  1152.384823: hrtimer_expire_exit:  hrtimer=0xffff00003cdab138
+          <idle>-0     [001]  1152.384824: hrtimer_start:        hrtimer=0xffff00003cdab138 function=tick_sched_timer expires=1152381000000 softexpires=1152381000000 mode=0x0
+       ktimers/1-27    [001]  1152.385007: hrtimer_expire_entry: hrtimer=0xffff800084123d30 function=hrtimer_wakeup now=1152380189125
+       ktimers/1-27    [001]  1152.385011: hrtimer_expire_exit:  hrtimer=0xffff800084123d30
+      cyclictest-1454  [001]  1152.385027: hrtimer_start:        hrtimer=0xffff800084123d30 function=hrtimer_wakeup expires=1152390260375 softexpires=1152390210375 mode=0x1
