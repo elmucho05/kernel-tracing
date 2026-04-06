@@ -22,15 +22,17 @@ Le interfacce grafiche (HMI) e i carichi di memoria artificiali sono stati tenut
 
 I **file** **raw** sono stati generati con i seguenti comandi:
 
-**1. Function Graph (Isolato sul processo):**
+#### **1. Function Graph (Isolato sul processo):**
 Traccia l'albero delle chiamate di funzione e i relativi tempi di esecuzione, filtrando solo per il PID di cyclictest e limitando la profondità per leggibilità.
 ```sh
 trace-cmd record -p function_graph --max-graph-depth 4 -F cyclictest -p 99 -m -a 1 -t 1 -i 1000 -D 5 -q
 ```
 
-**2. Tracciamento degli Eventi Timer (HRTimers):** Traccia esclusivamente i momenti di avvio e scadenza dei timer hardware per verificare l'infrastruttura di risveglio. 
+#### **2. Tracciamento degli Eventi Timer (HRTimers):** 
+> Traccia esclusivamente i momenti di avvio e scadenza dei timer hardware per verificare l'infrastruttura di risveglio. 
+
 **La domanda che ci eravamo posti era :**
-> Riusciamo a catturare l'interrupt del Timer che fa da sveglia a cyclictest? E se sì, si tratta di un timer HRT?
+> *Riusciamo a catturare l'interrupt del Timer che fa da sveglia a cyclictest? E se sì, si tratta di un timer HRT?*
 
 Utilizzando un tracer come `function_graph` e filtrando solo il processo `cyclcitest` non è stato possibile visualizzare l'interrupt handler.
 - `cyclictest` invocava la funzione di addormentamento `nanosleep {`
@@ -50,13 +52,15 @@ Invece di tracciare l'intero kernel ed avere tantissimo rumore, è possibile usa
 trace-cmd record -e timer:hrtimer_start -e timer:hrtimer_expire_entry -e timer:hrtimer_expire_exit cyclictest -p 99 -m -a 1 -t 1 -i 1000 -D 5 -q
 ```
 
-**3. Tracer Latenza IRQSOFF:** Misura il tempo massimo in cui gli interrupt hardware sono stati disabilitati a livello di CPU.
+#### **3. Tracer Latenza IRQSOFF:** 
+> Misura il tempo massimo in cui gli interrupt hardware sono stati disabilitati a livello di CPU.
 
 ```bash
 trace-cmd record -p irqsoff cyclictest -p 99 -m -a 1 -t 1 -i 1000 -D 5 -q
 ```
 
-**4. Tracer Latenza WAKEUP_RT:** Misura il tempo totale trascorso dal momento in cui scatta l'evento di risveglio per il task RT al momento in cui avviene il context switch fisico sulla CPU.
+#### **4. Tracer Latenza WAKEUP_RT:** 
+> Misura il tempo totale trascorso dal momento in cui scatta l'evento di risveglio per il task RT al momento in cui avviene il context switch fisico sulla CPU.
 
 ```bash
 trace-cmd record -p wakeup_rt cyclictest -p 99 -m -a 1 -t 1 -i 1000 -D 5 -q
