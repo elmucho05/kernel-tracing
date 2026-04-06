@@ -28,12 +28,27 @@ Traccia l'albero delle chiamate di funzione e i relativi tempi di esecuzione, fi
 trace-cmd record -p function_graph --max-graph-depth 4 -F cyclictest -p 99 -m -a 1 -t 1 -i 1000 -D 5 -q
 ```
 
-**2. Tracciamento degli Eventi Timer (HRTimers):** Traccia esclusivamente i momenti di avvio e scadenza dei timer hardware per verificare l'infrastruttura di risveglio.
+**2. Tracciamento degli Eventi Timer (HRTimers):** Traccia esclusivamente i momenti di avvio e scadenza dei timer hardware per verificare l'infrastruttura di risveglio. 
+**La domanda che ci eravamo posti era :**
+> Riusciamo a catturare l'interrupt del Timer che fa da sveglia a cyclictest? E se sì, si tratta di un timer HRT?
+
+Utilizzando un tracer come `function_graph` e filtrando solo il processo `cyclcitest` non è stato possibile visualizzare l'interrupt handler.
+- `cyclictest` invocava la funzione di addormentamento `nanosleep {`
+- la quale ci metteva `10 ms` nella traccia
+- Poi `cyclictest` riprendeva la propria esecuzione dal processo `ktimers`
+
+Quindi quando suonava il timer hw, la CPU si trovava nello stato `<idle>`. Poiché avevamo usato `trace-cmd` per stampare solo quello che aveva fatto `cyclictest`, il tracer era rimasto "cieco" all'arrivo dell'interrupt. 
+
+Invece di tracciare l'intero kernel ed avere tantissimo rumore, è possibile usare tramite l'opzione `-e` il tracciamento degli **eventi**.
+- per scoprire l'evento da tracciare, basta consultare la traccia precedente nella quale si trova qualcosa del tipo 
+```
+<idle>-0 [001] 1152.376307: hrtimer_expire_entry: ... function=hrtimer_wakeup
+```
+- qua la CPU a riposo veniva interrotta dall'hw che eseguiva la funzione `hrtimer_wakeup` per risvegliare `cyclictest`
 
 ```bash
 trace-cmd record -e timer:hrtimer_start -e timer:hrtimer_expire_entry -e timer:hrtimer_expire_exit cyclictest -p 99 -m -a 1 -t 1 -i 1000 -D 5 -q
 ```
-
 
 **3. Tracer Latenza IRQSOFF:** Misura il tempo massimo in cui gli interrupt hardware sono stati disabilitati a livello di CPU.
 
@@ -53,18 +68,16 @@ _Estrazione dei log (comune a tutti):_
 trace-cmd report > nome_traccia
 ```
 
-
-
 ## 3. Risultati e Analisi dei pattern occurrencies
 
 Di seguito l'analisi dei fenomeni isolati documentati nei rispettivi file `*-occurrency`.
 ### A. Function Graph (`funcgraph-occurrency`)
 
 - **Obiettivo:** Riconoscere il pattern architetturale di Sleep e Wakeup.
-- **Analisi:** La traccia evidenzia il momento dell'addormentamento: `cyclictest` invoca `__arm64_sys_clock_nanosleep() {` lasciando la parentesi aperta. A causa del filtro sul singolo PID, l'interrupt hardware che innesca il risveglio non è visibile. Tuttavia, si rileva un netto "salto" temporale di ~10ms (corrispondente all'intervallo di cyclictest). Il risveglio è marcato dall'ingresso del thread `ktimers/1`, il quale esegue le funzioni architetturali ARM64 per il context switch (`fpsimd_thread_switch`, `tls_preserve_current_state`), cedendo fisicamente la CPU a `cyclictest` che chiude la funzione nanosleep con un delta registrato di `# 10184 us`.
+- **Analisi:** La traccia evidenzia il momento dell'addormentamento: `cyclictest` invoca `__arm64_sys_clock_nanosleep() {` lasciando la parentesi aperta. A causa del filtro sul singolo PID, **l'interrupt hardware che innesca il risveglio non è visibile.** Tuttavia, si rileva un netto "salto" temporale di ~10ms (corrispondente all'intervallo di cyclictest). Il risveglio è marcato dall'ingresso del thread `ktimers/1`, il quale esegue le funzioni architetturali ARM64 per il context switch (`fpsimd_thread_switch`, `tls_preserve_current_state`), cedendo fisicamente la CPU a `cyclictest` che chiude la funzione nanosleep con un delta registrato di `# 10184 us`.
 
 ### B. Timers (`timers-occurrency`)
-- **Obiettivo:** Dimostrare che il kernel usa un High-Resolution Timer dedicato e non il tick di sistema (housekeeping) per i risvegli Real-Time.
+- **Obiettivo:** *Dimostrare che il kernel usa un High-Resolution Timer dedicato* e non il tick di sistema (housekeeping) per i risvegli Real-Time.
 - **Analisi:** Il file cattura uso degli HRTimers. Filtriando il rumore di fondo (`function=tick_sched_timer`), emerge un pattern ciclico : `cyclictest` imposta un timer con `hrtimer_start` mirato alla callback `hrtimer_wakeup`. Calcolando la differenza tra i parametri `expires` di due iterazioni successive, si ottiene un delta esatto di `1.000.000` nanosecondi (1 millisecondo). Quando la CPU esce dall'idle, gestisce `hrtimer_expire_entry` unicamente per la callback di wakeup, bypassando totalmente la routine generale di housekeeping.
     
 ### C. IRQSOFF (`irsqoff-occurrency`)
@@ -83,4 +96,4 @@ Di seguito l'analisi dei fenomeni isolati documentati nei rispettivi file `*-occ
 1. L'interrupt alza il flag `N`.
 2. A 167 µs inizia la gestione di `__schedule`.
 3. A 181 µs lo scheduler decide il task subentrante e _rimuove_ il flag `N`, sebbene il context switch non sia ancora ultimato.
-4. A 193 µs avviene lo swap fisico dei registri (`==>`). 
+4. A 193 µs avviene lo swap fisico dei registri (`==>`). ]
