@@ -4,6 +4,7 @@ L'obiettivo dell'analisi è isolare, riconoscere e misurare i pattern fisiologic
 
 ## 1. Struttura della directory e guida alla lettura
 
+Questa directory contiene i risultati dei test eseguiti tramite cyclictest in condizioni di stress(interfaccia grafica attiva) [hmi](./hmi) e non ([nohmi](./nohmi))
 I file all'interno di questa directory seguono una un pattern di naming per separare i dati grezzi dalle analisi estratte:
 
 * **`traccia_*`**: Questi file contengono il **dump completo e raw** generato da `trace-cmd`. Sono file grandi che rappresentano l'intero periodo di registrazione e contengono tutto il "rumore" del sistema intercettato dal tracer.
