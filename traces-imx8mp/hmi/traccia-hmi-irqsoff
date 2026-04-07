@@ -1,0 +1,151 @@
+cpus=4
+# tracer: irqsoff
+#
+# irqsoff latency trace v1.1.5 on 6.6.23-rt28-g6d8254487cee
+# --------------------------------------------------------------------
+# latency: 661 us, #104/104, CPU#0 | (M:preempt_rt VP:0, KP:0, SP:0 HP:0 #P:4)
+#    -----------------
+#    | task: kworker/0:2-231 (uid:0 nice:0 policy:0 rt_prio:0)
+#    -----------------
+#  => started at: enter_from_kernel_mode
+#  => ended at:   el1_interrupt
+#
+#
+#                    _------=> CPU#            
+#                   / _-----=> irqs-off/BH-disabled
+#                  | / _----=> need-resched    
+#                  || / _---=> hardirq/softirq 
+#                  ||| / _--=> preempt-depth   
+#                  |||| / _-=> migrate-disable 
+#                  ||||| /     delay           
+#  cmd     pid     |||||| time  |   caller     
+#     \   /        ||||||  \    |    /       
+kworker/-231       0dN.21    0us : trace_hardirqs_off_finish <-enter_from_kernel_mode
+kworker/-231       0dN.21    1us : irq_enter_rcu <-el1_interrupt
+kworker/-231       0dN.21    5us : preempt_count_add <-irq_enter_rcu
+kworker/-231       0dNh21    6us : irqtime_account_irq <-irq_enter_rcu
+kworker/-231       0dNh21    7us : do_interrupt_handler <-el1_interrupt
+kworker/-231       0dNh21   11us : gic_handle_irq <-call_on_irq_stack
+kworker/-231       0dNh21   12us : generic_handle_domain_irq <-gic_handle_irq
+kworker/-231       0dNh21   18us : __irq_resolve_mapping <-generic_handle_domain_irq
+kworker/-231       0dNh21   18us : __rcu_read_lock <-__irq_resolve_mapping
+kworker/-231       0dNh21   21us : __rcu_read_unlock <-__irq_resolve_mapping
+kworker/-231       0dNh21   22us : handle_percpu_devid_irq <-generic_handle_domain_irq
+kworker/-231       0dNh21   26us : arch_timer_handler_phys <-handle_percpu_devid_irq
+kworker/-231       0dNh21   27us : hrtimer_interrupt <-arch_timer_handler_phys
+kworker/-231       0dNh21   30us : _raw_spin_lock_irqsave <-hrtimer_interrupt
+kworker/-231       0dNh21   34us : preempt_count_add <-_raw_spin_lock_irqsave
+kworker/-231       0dNh31   35us : ktime_get_update_offsets_now <-hrtimer_interrupt
+kworker/-231       0dNh31   40us : arch_counter_read <-ktime_get_update_offsets_now
+kworker/-231       0dNh31   45us+: __hrtimer_run_queues <-hrtimer_interrupt
+kworker/-231       0dNh31   59us : _raw_spin_unlock_irqrestore <-__hrtimer_run_queues
+kworker/-231       0dNh31   60us : preempt_count_sub <-_raw_spin_unlock_irqrestore
+kworker/-231       0dNh21   60us : tick_sched_timer <-__hrtimer_run_queues
+kworker/-231       0dNh21   62us : ktime_get <-tick_sched_timer
+kworker/-231       0dNh21   62us : arch_counter_read <-ktime_get
+kworker/-231       0dNh21   66us : tick_sched_do_timer <-tick_sched_timer
+kworker/-231       0dNh21   70us : tick_do_update_jiffies64 <-tick_sched_do_timer
+kworker/-231       0dNh21   76us : _raw_spin_lock <-tick_do_update_jiffies64
+kworker/-231       0dNh21   77us+: preempt_count_add <-_raw_spin_lock
+kworker/-231       0dNh31   88us : calc_global_load <-tick_do_update_jiffies64
+kworker/-231       0dNh31   90us : preempt_count_sub <-tick_do_update_jiffies64
+kworker/-231       0dNh21   96us : update_wall_time <-tick_do_update_jiffies64
+kworker/-231       0dNh21  102us : timekeeping_advance <-update_wall_time
+kworker/-231       0dNh21  104us : _raw_spin_lock_irqsave <-timekeeping_advance
+kworker/-231       0dNh21  106us : preempt_count_add <-_raw_spin_lock_irqsave
+kworker/-231       0dNh31  110us : arch_counter_read <-timekeeping_advance
+kworker/-231       0dNh31  117us+: ntp_tick_length <-timekeeping_advance
+kworker/-231       0dNh31  131us+: ntp_tick_length <-timekeeping_advance
+kworker/-231       0dNh31  143us : timekeeping_update <-timekeeping_advance
+kworker/-231       0dNh31  150us : ntp_get_next_leap <-timekeeping_update
+kworker/-231       0dNh31  154us+: update_vsyscall <-timekeeping_update
+kworker/-231       0dNh31  166us : raw_notifier_call_chain <-timekeeping_update
+kworker/-231       0dNh31  168us+: notifier_call_chain <-raw_notifier_call_chain
+kworker/-231       0dNh31  190us : _raw_spin_unlock_irqrestore <-timekeeping_advance
+kworker/-231       0dNh31  195us : preempt_count_sub <-_raw_spin_unlock_irqrestore
+kworker/-231       0dNh21  202us : tick_sched_handle <-tick_sched_timer
+kworker/-231       0dNh21  202us : update_process_times <-tick_sched_handle
+kworker/-231       0dNh21  205us : account_process_tick <-update_process_times
+kworker/-231       0dNh21  213us : irqtime_account_process_tick <-account_process_tick
+kworker/-231       0dNh21  220us : account_system_index_time <-irqtime_account_process_tick
+kworker/-231       0dNh21  226us+: acct_account_cputime <-account_system_index_time
+kworker/-231       0dNh21  271us : hrtimer_run_queues <-update_process_times
+kworker/-231       0dNh21  281us+: rcu_sched_clock_irq <-update_process_times
+kworker/-231       0dNh21  303us+: rcu_is_cpu_rrupt_from_idle <-rcu_sched_clock_irq
+kworker/-231       0dNh21  322us : rcu_segcblist_ready_cbs <-rcu_sched_clock_irq
+kworker/-231       0dNh21  327us : rcu_is_cpu_rrupt_from_idle <-rcu_sched_clock_irq
+kworker/-231       0dNh21  335us : scheduler_tick <-update_process_times
+kworker/-231       0dNh21  337us : housekeeping_test_cpu <-scheduler_tick
+kworker/-231       0dNh21  345us : topology_scale_freq_tick <-scheduler_tick
+kworker/-231       0dNh21  345us : preempt_count_add <-scheduler_tick
+kworker/-231       0dNh31  347us : _raw_spin_lock <-scheduler_tick
+kworker/-231       0dNh31  348us : preempt_count_add <-_raw_spin_lock
+kworker/-231       0dNh41  358us : preempt_count_sub <-scheduler_tick
+kworker/-231       0dNh31  360us : update_rq_clock.part.0 <-scheduler_tick
+kworker/-231       0dNh31  368us+: update_irq_load_avg <-update_rq_clock.part.0
+kworker/-231       0dNh31  382us+: update_thermal_load_avg <-scheduler_tick
+kworker/-231       0dNh31  395us : task_tick_fair <-scheduler_tick
+kworker/-231       0dNh31  400us : __update_curr.isra.0 <-task_tick_fair
+kworker/-231       0dNh31  407us+: update_min_vruntime <-__update_curr.isra.0
+kworker/-231       0dNh31  422us : __update_load_avg_se <-update_load_avg
+kworker/-231       0dNh31  430us : __update_load_avg_cfs_rq <-update_load_avg
+kworker/-231       0dNh31  438us : hrtimer_active <-task_tick_fair
+kworker/-231       0dNh31  445us : calc_global_load_tick <-scheduler_tick
+kworker/-231       0dNh31  453us : task_tick_mm_cid <-scheduler_tick
+kworker/-231       0dNh31  454us : preempt_count_sub <-scheduler_tick
+kworker/-231       0dNh21  454us : perf_event_task_tick <-scheduler_tick
+kworker/-231       0dNh21  459us : perf_adjust_freq_unthr_context <-perf_event_task_tick
+kworker/-231       0dNh21  468us : __rcu_read_lock <-perf_event_task_tick
+kworker/-231       0dNh21  469us : __rcu_read_unlock <-perf_event_task_tick
+kworker/-231       0dNh21  476us : wq_worker_tick <-scheduler_tick
+kworker/-231       0dNh21  477us+: kthread_data <-wq_worker_tick
+kworker/-231       0dNh21  491us : trigger_load_balance <-scheduler_tick
+kworker/-231       0dNh21  498us : run_posix_cpu_timers <-update_process_times
+kworker/-231       0dNh21  502us : profile_tick <-tick_sched_handle
+kworker/-231       0dNh21  508us : hrtimer_forward <-tick_sched_timer
+kworker/-231       0dNh21  516us : _raw_spin_lock_irq <-__hrtimer_run_queues
+kworker/-231       0dNh21  516us : preempt_count_add <-_raw_spin_lock_irq
+kworker/-231       0dNh31  524us+: enqueue_hrtimer <-__hrtimer_run_queues
+kworker/-231       0dNh31  549us : hrtimer_update_next_event <-hrtimer_interrupt
+kworker/-231       0dNh31  549us : __hrtimer_next_event_base <-hrtimer_update_next_event
+kworker/-231       0dNh31  555us : __hrtimer_next_event_base <-hrtimer_update_next_event
+kworker/-231       0dNh31  561us : _raw_spin_unlock_irqrestore <-hrtimer_interrupt
+kworker/-231       0dNh31  563us : preempt_count_sub <-_raw_spin_unlock_irqrestore
+kworker/-231       0dNh21  564us : tick_program_event <-hrtimer_interrupt
+kworker/-231       0dNh21  569us : clockevents_program_event <-tick_program_event
+kworker/-231       0dNh21  576us : ktime_get <-clockevents_program_event
+kworker/-231       0dNh21  577us : arch_counter_read <-ktime_get
+kworker/-231       0dNh21  578us : arch_timer_set_next_event_phys <-clockevents_program_event
+kworker/-231       0dNh21  586us+: gic_eoimode1_eoi_irq <-handle_percpu_devid_irq
+kworker/-231       0dNh21  601us : irq_exit_rcu <-el1_interrupt
+kworker/-231       0dNh21  607us : irqtime_account_irq <-__irq_exit_rcu
+kworker/-231       0dNh21  615us : preempt_count_sub <-__irq_exit_rcu
+kworker/-231       0dN.21  617us+: idle_cpu <-__irq_exit_rcu
+kworker/-231       0dN.21  654us+: exit_to_kernel_mode.isra.0 <-el1_interrupt
+kworker/-231       0dN.21  676us+: tracer_hardirqs_on <-el1_interrupt
+kworker/-231       0dN.21  723us : <stack trace>
+ => el1_interrupt
+ => el1h_64_irq_handler
+ => el1h_64_irq
+ => _raw_spin_unlock_irqrestore
+ => rt_mutex_slowunlock
+ => rt_spin_unlock
+ => imx_mu_xcr_rmw.isra.0
+ => imx_mu_generic_tx
+ => imx_mu_send_data
+ => msg_submit
+ => mbox_send_message
+ => imx_rpmsg_notify
+ => virtqueue_kick
+ => rpmsg_send_offchannel_raw
+ => virtio_rpmsg_send
+ => rpmsg_send
+ => rpmsg_esa_drv_cb
+ => rpmsg_recv_done
+ => vring_interrupt
+ => rpmsg_work_handler
+ => process_one_work
+ => worker_thread
+ => kthread
+ => ret_from_fork
+
