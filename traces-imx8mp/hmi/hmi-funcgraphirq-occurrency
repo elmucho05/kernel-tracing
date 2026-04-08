@@ -1,0 +1,114 @@
+
+      cyclictest-1570  [001]   441.287602: funcgraph_entry:        0.875 us   |  cortex_a76_erratum_1463225_svc_handler();
+      cyclictest-1570  [001]   441.287604: funcgraph_entry:                   |  do_el0_svc() {
+      cyclictest-1570  [001]   441.287606: funcgraph_entry:                   |    el0_svc_common.constprop.0() {
+      cyclictest-1570  [001]   441.287607: funcgraph_entry:                   |      syscall_trace_enter() {
+      cyclictest-1570  [001]   441.287609: funcgraph_entry:        2.250 us   |        __audit_syscall_entry();
+      cyclictest-1570  [001]   441.287613: funcgraph_exit:         5.375 us   |      }
+      cyclictest-1570  [001]   441.287614: funcgraph_entry:                   |      invoke_syscall() {
+      cyclictest-1570  [001]   441.287616: funcgraph_entry:                   |        __arm64_sys_clock_nanosleep() {
+         QThread-1431  [001]   441.297956: funcgraph_entry:                   |  _raw_spin_lock_irqsave() {
+         QThread-1431  [001]   441.297957: funcgraph_entry:        1.000 us   |    preempt_count_add();
+         QThread-1431  [001]   441.297959: funcgraph_exit:         3.500 us   |  }
+         QThread-1431  [001]   441.297960: funcgraph_entry:                   |  _raw_spin_unlock_irqrestore() {
+         QThread-1431  [001]   441.297961: funcgraph_entry:        0.875 us   |    preempt_count_sub();
+         QThread-1431  [001]   441.297962: funcgraph_exit:         2.500 us   |  }
+         QThread-1431  [001]   441.297963: funcgraph_entry:                   |  check_and_switch_context() {
+         QThread-1431  [001]   441.297964: funcgraph_entry:                   |    cpu_do_switch_mm() {
+         QThread-1431  [001]   441.297965: funcgraph_entry:        0.750 us   |      post_ttbr_update_workaround();
+         QThread-1431  [001]   441.297966: funcgraph_exit:         2.375 us   |    }
+         QThread-1431  [001]   441.297967: funcgraph_exit:         4.125 us   |  }
+         QThread-1431  [001]   441.297968: funcgraph_entry:                   |  fpsimd_thread_switch() {
+         QThread-1431  [001]   441.297969: funcgraph_entry:        0.875 us   |    __get_cpu_fpsimd_context();
+         QThread-1431  [001]   441.297971: funcgraph_entry:        1.000 us   |    fpsimd_save();
+         QThread-1431  [001]   441.297972: funcgraph_entry:        0.875 us   |    __put_cpu_fpsimd_context();
+         QThread-1431  [001]   441.297974: funcgraph_exit:         5.750 us   |  }
+         QThread-1431  [001]   441.297975: funcgraph_entry:        0.875 us   |  tls_preserve_current_state();
+         QThread-1431  [001]   441.297976: funcgraph_entry:        0.875 us   |  hw_breakpoint_thread_switch();
+         QThread-1431  [001]   441.297978: funcgraph_entry:                   |  spectre_v4_enable_task_mitigation() {
+         QThread-1431  [001]   441.297979: funcgraph_entry:        0.875 us   |    cpu_mitigations_off();
+         QThread-1431  [001]   441.297980: funcgraph_entry:        0.875 us   |    cpu_mitigations_off();
+         QThread-1431  [001]   441.297982: funcgraph_exit:         4.125 us   |  }
+         QThread-1431  [001]   441.297983: funcgraph_entry:                   |  erratum_1418040_thread_switch() {
+         QThread-1431  [001]   441.297984: funcgraph_entry:                   |    this_cpu_has_cap() {
+         QThread-1431  [001]   441.297985: funcgraph_entry:        0.875 us   |      is_affected_midr_range_list();
+         QThread-1431  [001]   441.297986: funcgraph_exit:         2.375 us   |    }
+         QThread-1431  [001]   441.297987: funcgraph_exit:         4.000 us   |  }
+         QThread-1431  [001]   441.297988: funcgraph_entry:        0.875 us   |  mte_thread_switch();
+      cyclictest-1570  [001]   441.297992: funcgraph_exit:       # 10375.875 us |        }
+      cyclictest-1570  [001]   441.297993: funcgraph_exit:       # 10379.000 us |      }
+      cyclictest-1570  [001]   441.297995: funcgraph_entry:                   |      syscall_trace_exit() {
+      cyclictest-1570  [001]   441.297997: funcgraph_entry:        1.750 us   |        __audit_syscall_exit();
+      cyclictest-1570  [001]   441.298000: funcgraph_exit:         4.875 us   |      }
+      cyclictest-1570  [001]   441.298001: funcgraph_exit:       # 10395.250 us |    }
+      cyclictest-1570  [001]   441.298003: funcgraph_exit:       # 10398.375 us |  }
+      cyclictest-1570  [001]   441.298004: funcgraph_entry:                   |  do_notify_resume() {
+      cyclictest-1570  [001]   441.298006: funcgraph_entry:        1.750 us   |    blkcg_maybe_throttle_current();
+      cyclictest-1570  [001]   441.298009: funcgraph_entry:                   |    __rseq_handle_notify_resume() {
+      cyclictest-1570  [001]   441.298011: funcgraph_entry:        1.500 us   |      clear_rseq_cs.isra.0();
+      cyclictest-1570  [001]   441.298014: funcgraph_exit:         4.875 us   |    }
+      cyclictest-1570  [001]   441.298015: funcgraph_entry:                   |    fpsimd_restore_current_state() {
+      cyclictest-1570  [001]   441.298017: funcgraph_entry:                   |      get_cpu_fpsimd_context() {
+      cyclictest-1570  [001]   441.298019: funcgraph_entry:        1.625 us   |        preempt_count_add();
+      cyclictest-1570  [001]   441.298021: funcgraph_exit:         4.625 us   |      }
+      cyclictest-1570  [001]   441.298023: funcgraph_entry:        1.750 us   |      task_fpsimd_load();
+      cyclictest-1570  [001]   441.298026: funcgraph_entry:        1.625 us   |      fpsimd_bind_task_to_cpu();
+      cyclictest-1570  [001]   441.298029: funcgraph_entry:                   |      put_cpu_fpsimd_context() {
+      cyclictest-1570  [001]   441.298031: funcgraph_entry:        1.500 us   |        preempt_count_sub();
+      cyclictest-1570  [001]   441.298034: funcgraph_exit:         4.625 us   |      }
+      cyclictest-1570  [001]   441.298035: funcgraph_exit:       + 20.125 us  |    }
+      cyclictest-1570  [001]   441.298037: funcgraph_exit:       + 32.750 us  |  }
+      cyclictest-1570  [001]   441.298040: funcgraph_entry:        0.875 us   |  cortex_a76_erratum_1463225_svc_handler();
+      cyclictest-1570  [001]   441.298042: funcgraph_entry:                   |  do_el0_svc() {
+      cyclictest-1570  [001]   441.298044: funcgraph_entry:                   |    el0_svc_common.constprop.0() {
+      cyclictest-1570  [001]   441.298045: funcgraph_entry:                   |      syscall_trace_enter() {
+      cyclictest-1570  [001]   441.298047: funcgraph_entry:        2.125 us   |        __audit_syscall_entry();
+      cyclictest-1570  [001]   441.298051: funcgraph_exit:         5.250 us   |      }
+      cyclictest-1570  [001]   441.298052: funcgraph_entry:                   |      invoke_syscall() {
+      cyclictest-1570  [001]   441.298054: funcgraph_entry:                   |        __arm64_sys_clock_nanosleep() {
+       ktimers/1-27    [001]   441.308213: funcgraph_entry:                   |  _raw_spin_lock_irqsave() {
+       ktimers/1-27    [001]   441.308217: funcgraph_entry:        1.125 us   |    preempt_count_add();
+       ktimers/1-27    [001]   441.308219: funcgraph_exit:         9.250 us   |  }
+       ktimers/1-27    [001]   441.308220: funcgraph_entry:                   |  _raw_spin_unlock_irqrestore() {
+       ktimers/1-27    [001]   441.308221: funcgraph_entry:        0.875 us   |    preempt_count_sub();
+       ktimers/1-27    [001]   441.308223: funcgraph_exit:         2.375 us   |  }
+       ktimers/1-27    [001]   441.308224: funcgraph_entry:                   |  fpsimd_thread_switch() {
+       ktimers/1-27    [001]   441.308225: funcgraph_entry:        0.875 us   |    __get_cpu_fpsimd_context();
+       ktimers/1-27    [001]   441.308226: funcgraph_entry:        1.000 us   |    fpsimd_save();
+       ktimers/1-27    [001]   441.308228: funcgraph_entry:        0.875 us   |    __put_cpu_fpsimd_context();
+       ktimers/1-27    [001]   441.308230: funcgraph_exit:         5.875 us   |  }
+       ktimers/1-27    [001]   441.308231: funcgraph_entry:        0.750 us   |  tls_preserve_current_state();
+       ktimers/1-27    [001]   441.308232: funcgraph_entry:        0.875 us   |  hw_breakpoint_thread_switch();
+       ktimers/1-27    [001]   441.308234: funcgraph_entry:                   |  spectre_v4_enable_task_mitigation() {
+       ktimers/1-27    [001]   441.308235: funcgraph_entry:        0.875 us   |    cpu_mitigations_off();
+       ktimers/1-27    [001]   441.308239: funcgraph_entry:        0.875 us   |    cpu_mitigations_off();
+       ktimers/1-27    [001]   441.308241: funcgraph_exit:         7.125 us   |  }
+       ktimers/1-27    [001]   441.308242: funcgraph_entry:                   |  erratum_1418040_thread_switch() {
+       ktimers/1-27    [001]   441.308243: funcgraph_entry:                   |    this_cpu_has_cap() {
+       ktimers/1-27    [001]   441.308244: funcgraph_entry:        0.875 us   |      is_affected_midr_range_list();
+       ktimers/1-27    [001]   441.308245: funcgraph_exit:         2.375 us   |    }
+       ktimers/1-27    [001]   441.308246: funcgraph_exit:         4.000 us   |  }
+       ktimers/1-27    [001]   441.308247: funcgraph_entry:        0.750 us   |  mte_thread_switch();
+      cyclictest-1570  [001]   441.308252: funcgraph_exit:       # 10198.125 us |        }
+      cyclictest-1570  [001]   441.308254: funcgraph_exit:       # 10201.625 us |      }
+      cyclictest-1570  [001]   441.308255: funcgraph_entry:                   |      syscall_trace_exit() {
+      cyclictest-1570  [001]   441.308257: funcgraph_entry:        1.875 us   |        __audit_syscall_exit();
+      cyclictest-1570  [001]   441.308260: funcgraph_exit:         5.125 us   |      }
+      cyclictest-1570  [001]   441.308262: funcgraph_exit:       # 10218.125 us |    }
+      cyclictest-1570  [001]   441.308263: funcgraph_exit:       # 10221.250 us |  }
+      cyclictest-1570  [001]   441.308265: funcgraph_entry:                   |  do_notify_resume() {
+      cyclictest-1570  [001]   441.308267: funcgraph_entry:        1.625 us   |    blkcg_maybe_throttle_current();
+      cyclictest-1570  [001]   441.308270: funcgraph_entry:                   |    __rseq_handle_notify_resume() {
+      cyclictest-1570  [001]   441.308272: funcgraph_entry:        1.625 us   |      clear_rseq_cs.isra.0();
+      cyclictest-1570  [001]   441.308275: funcgraph_exit:         5.125 us   |    }
+      cyclictest-1570  [001]   441.308277: funcgraph_entry:                   |    fpsimd_restore_current_state() {
+      cyclictest-1570  [001]   441.308278: funcgraph_entry:                   |      get_cpu_fpsimd_context() {
+      cyclictest-1570  [001]   441.308280: funcgraph_entry:        1.625 us   |        preempt_count_add();
+      cyclictest-1570  [001]   441.308283: funcgraph_exit:         4.750 us   |      }
+      cyclictest-1570  [001]   441.308284: funcgraph_entry:        2.250 us   |      task_fpsimd_load();
+      cyclictest-1570  [001]   441.308288: funcgraph_entry:        1.625 us   |      fpsimd_bind_task_to_cpu();
+      cyclictest-1570  [001]   441.308291: funcgraph_entry:                   |      put_cpu_fpsimd_context() {
+      cyclictest-1570  [001]   441.308293: funcgraph_entry:        1.625 us   |        preempt_count_sub();
+      cyclictest-1570  [001]   441.308296: funcgraph_exit:         4.750 us   |      }
+      cyclictest-1570  [001]   441.308297: funcgraph_exit:       + 20.750 us  |    }
+      cyclictest-1570  [001]   441.308299: funcgraph_exit:       + 33.750 us  |  }
