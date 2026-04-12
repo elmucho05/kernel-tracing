@@ -1,4 +1,10 @@
-# trace-cmd record -p function_graph 
+$ trace-cmd record -p function_graph 
+
+Di seguito il ciclo di esecuzione di cyclictest tracciato con la massima profondità.
+In questo file vengono evidenziati 4 momenti che caratterizzano il ciclo di esecuzione di cyclictest : Addormentamento, Timer che scatta e interrupt handler, Pattern di risveglio eseguito dal kernel ed Effettivo risveglio dopo la nanosleep.
+
+Per la traccia intera, consultare il file `cyclictest-loop-full-trace`
+
  1. Addormentamento di cyclictest-2641 
       Il processo cyclictest (pid 2641) invoca la system call per addormentarsi (nanosleep), 
       imposta il timer hardware e infine chiama schedule() per cedere volontariamente la CPU
@@ -71,6 +77,8 @@
       2. Timer interrupt handler
         Il tempo scade. Il timer hardware genera un interrupt. Essendo in ambiente PREEMPT_RT, 
         l'interrupt viene gestito dal thread delegato del kernel (ktimers/1-27), che intercetta la scadenza.
+        Per dettagli maggiori riguardanti il timer, consultare la traccia `hrtimer-pattern` dove vengono mostrati i momenti in cui il timer viene registrato, scatta ed il thread che gestisce l'interrupt che va in esecuzione.
+
 
        trace-cmd-2944  [001]  2993.428294: funcgraph_entry:                   |                                            do_interrupt_handler() {
        trace-cmd-2944  [001]  2993.428294: funcgraph_entry:                   |                                              gic_handle_irq() {
@@ -158,7 +166,7 @@
        3. Risveglio
 
        Immediatamente dopo aver processato la coda dei timer scaduti, l'handler invia l'ordine di svegliare il processo originario (1641) 
-       reinserendolo nella coda di esecuzione (Ready Queue).
+       reinserendolo nella coda di esecuzione .
 
        ktimers/1-27    [001]  2993.428563: funcgraph_entry:                   |          hrtimer_wakeup() {
        ktimers/1-27    [001]  2993.428565: funcgraph_entry:                   |            wake_up_process() {

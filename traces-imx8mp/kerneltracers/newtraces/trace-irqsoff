@@ -1,0 +1,304 @@
+$ trace-cmd record -p irqsoff
+
+Dalla documentazione ufficile : 
+> The irqsoff tracer tracks the time for which interrupts are disabled. When a new maximum latency is hit, the tracer saves the trace leading up to that latency point so that every time a new maximum is reached, the old saved trace is discarded and the new trace is saved.
+
+Questa traccia mostra il task che ha subito il massimo ritardo dovuto agli interrupt disabilitati.
+Scorrendo il log e lo stack trace finale, è evidente che il blocco non è avvenuto in spazio utente. Il responsabile è un thread interno del kernel (kworker/0:1-8) che stava gestendo un'interrupt hw.
+
+
+Il tracer irqsoff monitora lo stato hardware globale della CPU, ignorando la logica dei singoli processi o PID. 
+Il fatto che `cyclictest` non compaia significa che il codice di cyclictest non causa mai la disabilitazione prolungata degli interrupt. 
+
+
+
+
+cpus=4
+# tracer: irqsoff
+#
+# irqsoff latency trace v1.1.5 on 6.6.23-rt28-g6d8254487cee
+# --------------------------------------------------------------------
+# latency: 192 us, #256/256, CPU#0 | (M:preempt_rt VP:0, KP:0, SP:0 HP:0 #P:4)
+#    -----------------
+#    | task: kworker/0:1-8 (uid:0 nice:0 policy:0 rt_prio:0)
+#    -----------------
+#  => started at: enter_from_kernel_mode
+#  => ended at:   el1_interrupt
+#
+#
+#                    _------=> CPU#            
+#                   / _-----=> irqs-off/BH-disabled
+#                  | / _----=> need-resched    
+#                  || / _---=> hardirq/softirq 
+#                  ||| / _--=> preempt-depth   
+#                  |||| / _-=> migrate-disable 
+#                  ||||| /     delay           
+#  cmd     pid     |||||| time  |   caller     
+#     \   /        ||||||  \    |    /       
+kworker/-8         0d....    0us : trace_hardirqs_off_finish <-enter_from_kernel_mode
+kworker/-8         0d....    1us : irq_enter_rcu <-el1_interrupt
+kworker/-8         0d....    2us : preempt_count_add <-irq_enter_rcu
+kworker/-8         0d.h..    3us : irqtime_account_irq <-irq_enter_rcu
+kworker/-8         0d.h..    3us : do_interrupt_handler <-el1_interrupt
+kworker/-8         0d.h..    4us : gic_handle_irq <-call_on_irq_stack
+kworker/-8         0d.h..    5us : generic_handle_domain_irq <-gic_handle_irq
+kworker/-8         0d.h..    5us : __irq_resolve_mapping <-generic_handle_domain_irq
+kworker/-8         0d.h..    6us : __rcu_read_lock <-__irq_resolve_mapping
+kworker/-8         0d.h..    7us : __rcu_read_unlock <-__irq_resolve_mapping
+kworker/-8         0d.h..    8us : dw_chained_msi_isr <-generic_handle_domain_irq
+kworker/-8         0d.h..    9us : dw_handle_msi_irq <-dw_chained_msi_isr
+kworker/-8         0d.h..   10us : dw_pcie_read_dbi <-dw_handle_msi_irq
+kworker/-8         0d.h..   11us : dw_pcie_read <-dw_pcie_read_dbi
+kworker/-8         0d.h..   13us : generic_handle_domain_irq <-dw_handle_msi_irq
+kworker/-8         0d.h..   13us : __irq_resolve_mapping <-generic_handle_domain_irq
+kworker/-8         0d.h..   14us : __rcu_read_lock <-__irq_resolve_mapping
+kworker/-8         0d.h..   15us : __rcu_read_unlock <-__irq_resolve_mapping
+kworker/-8         0d.h..   15us : handle_edge_irq <-generic_handle_domain_irq
+kworker/-8         0d.h..   16us : _raw_spin_lock <-handle_edge_irq
+kworker/-8         0d.h..   17us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0d.h1.   18us : dw_msi_ack_irq <-handle_edge_irq
+kworker/-8         0d.h1.   19us : irq_chip_ack_parent <-dw_msi_ack_irq
+kworker/-8         0d.h1.   19us : dw_pci_bottom_ack <-irq_chip_ack_parent
+kworker/-8         0d.h1.   20us : dw_pcie_write_dbi <-dw_pci_bottom_ack
+kworker/-8         0d.h1.   21us : handle_irq_event <-handle_edge_irq
+kworker/-8         0d.h1.   22us : preempt_count_sub <-handle_irq_event
+kworker/-8         0d.h..   23us : __handle_irq_event_percpu <-handle_irq_event
+kworker/-8         0d.h..   24us : irq_default_primary_handler <-__handle_irq_event_percpu
+kworker/-8         0d.h..   24us : __irq_wake_thread <-__handle_irq_event_percpu
+kworker/-8         0d.h..   25us : wake_up_process <-__irq_wake_thread
+kworker/-8         0d.h..   26us : try_to_wake_up <-wake_up_process
+kworker/-8         0d.h..   26us : preempt_count_add <-try_to_wake_up
+kworker/-8         0d.h1.   27us : _raw_spin_lock_irqsave <-try_to_wake_up
+kworker/-8         0d.h1.   28us : preempt_count_add <-_raw_spin_lock_irqsave
+kworker/-8         0d.h2.   29us : select_task_rq_rt <-try_to_wake_up
+kworker/-8         0d.h2.   30us : __rcu_read_lock <-select_task_rq_rt
+kworker/-8         0d.h2.   30us : __rcu_read_unlock <-select_task_rq_rt
+kworker/-8         0d.h2.   31us : kthread_is_per_cpu <-try_to_wake_up
+kworker/-8         0d.h2.   32us : preempt_count_add <-try_to_wake_up
+kworker/-8         0d.h3.   33us : _raw_spin_lock <-try_to_wake_up
+kworker/-8         0d.h3.   33us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0d.h4.   34us : queued_spin_lock_slowpath <-_raw_spin_lock
+kworker/-8         0d.h4.   44us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0d.h3.   44us : update_rq_clock.part.0 <-try_to_wake_up
+kworker/-8         0d.h3.   45us : ttwu_do_activate.isra.0 <-try_to_wake_up
+kworker/-8         0d.h3.   46us : activate_task <-ttwu_do_activate.isra.0
+kworker/-8         0d.h3.   47us : enqueue_task_rt <-activate_task
+kworker/-8         0d.h3.   47us : dequeue_rt_stack <-enqueue_task_rt
+kworker/-8         0d.h3.   48us : cpupri_set <-enqueue_task_rt
+kworker/-8         0d.h3.   49us : update_rt_migration <-enqueue_task_rt
+kworker/-8         0d.h3.   50us : _raw_spin_lock <-enqueue_task_rt
+kworker/-8         0d.h3.   50us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0d.h4.   51us : preempt_count_sub <-enqueue_task_rt
+kworker/-8         0d.h3.   52us : enqueue_top_rt_rq <-enqueue_task_rt
+kworker/-8         0d.h3.   53us : check_preempt_curr <-ttwu_do_activate.isra.0
+kworker/-8         0d.h3.   53us : __resched_curr.constprop.0 <-check_preempt_curr
+kworker/-8         0d.h3.   54us : arch_smp_send_reschedule <-__resched_curr.constprop.0
+kworker/-8         0d.h3.   55us : smp_cross_call <-arch_smp_send_reschedule
+kworker/-8         0d.h3.   55us : __ipi_send_mask <-smp_cross_call
+kworker/-8         0d.h3.   56us : gic_ipi_send_mask <-__ipi_send_mask
+kworker/-8         0d.h3.   57us : cpu_logical_map <-gic_ipi_send_mask
+kworker/-8         0d.h3.   57us : cpu_logical_map <-gic_ipi_send_mask
+kworker/-8         0d.h3.   58us : imx_gpcv2_raise_softirq <-smp_cross_call
+kworker/-8         0d.h3.   59us : task_woken_rt <-ttwu_do_activate.isra.0
+kworker/-8         0d.h2.   59us : _raw_spin_unlock_irqrestore <-try_to_wake_up
+kworker/-8         0d.h2.   60us : preempt_count_sub <-_raw_spin_unlock_irqrestore
+kworker/-8         0d.h1.   61us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0d.h..   61us : add_interrupt_randomness <-handle_irq_event
+kworker/-8         0d.h..   62us : fast_mix <-add_interrupt_randomness
+kworker/-8         0d.h..   63us : note_interrupt <-handle_irq_event
+kworker/-8         0d.h..   63us : _raw_spin_lock <-handle_irq_event
+kworker/-8         0d.h..   64us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0d.h1.   65us : preempt_count_sub <-handle_edge_irq
+kworker/-8         0d.h..   65us : generic_handle_domain_irq <-dw_handle_msi_irq
+kworker/-8         0d.h..   66us : __irq_resolve_mapping <-generic_handle_domain_irq
+kworker/-8         0d.h..   67us : __rcu_read_lock <-__irq_resolve_mapping
+kworker/-8         0d.h..   67us : __rcu_read_unlock <-__irq_resolve_mapping
+kworker/-8         0d.h..   68us : handle_edge_irq <-generic_handle_domain_irq
+kworker/-8         0d.h..   69us : _raw_spin_lock <-handle_edge_irq
+kworker/-8         0d.h..   70us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0d.h1.   71us : dw_msi_ack_irq <-handle_edge_irq
+kworker/-8         0d.h1.   72us : irq_chip_ack_parent <-dw_msi_ack_irq
+kworker/-8         0d.h1.   72us : dw_pci_bottom_ack <-irq_chip_ack_parent
+kworker/-8         0d.h1.   73us : dw_pcie_write_dbi <-dw_pci_bottom_ack
+kworker/-8         0d.h1.   74us : handle_irq_event <-handle_edge_irq
+kworker/-8         0d.h1.   74us : preempt_count_sub <-handle_irq_event
+kworker/-8         0d.h..   75us : __handle_irq_event_percpu <-handle_irq_event
+kworker/-8         0d.h..   76us : irq_default_primary_handler <-__handle_irq_event_percpu
+kworker/-8         0d.h..   76us : __irq_wake_thread <-__handle_irq_event_percpu
+kworker/-8         0d.h..   77us : wake_up_process <-__irq_wake_thread
+kworker/-8         0d.h..   78us : try_to_wake_up <-wake_up_process
+kworker/-8         0d.h..   78us : preempt_count_add <-try_to_wake_up
+kworker/-8         0d.h1.   79us : _raw_spin_lock_irqsave <-try_to_wake_up
+kworker/-8         0d.h1.   80us : preempt_count_add <-_raw_spin_lock_irqsave
+kworker/-8         0d.h2.   81us : select_task_rq_rt <-try_to_wake_up
+kworker/-8         0d.h2.   82us : __rcu_read_lock <-select_task_rq_rt
+kworker/-8         0d.h2.   82us : __rcu_read_unlock <-select_task_rq_rt
+kworker/-8         0d.h2.   83us : kthread_is_per_cpu <-try_to_wake_up
+kworker/-8         0d.h2.   84us : preempt_count_add <-try_to_wake_up
+kworker/-8         0d.h3.   84us : _raw_spin_lock <-try_to_wake_up
+kworker/-8         0d.h3.   85us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0d.h4.   86us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0d.h3.   86us : update_rq_clock.part.0 <-try_to_wake_up
+kworker/-8         0d.h3.   87us : update_irq_load_avg <-update_rq_clock.part.0
+kworker/-8         0d.h3.   88us : ttwu_do_activate.isra.0 <-try_to_wake_up
+kworker/-8         0d.h3.   88us : activate_task <-ttwu_do_activate.isra.0
+kworker/-8         0d.h3.   89us : enqueue_task_rt <-activate_task
+kworker/-8         0d.h3.   90us : dequeue_rt_stack <-enqueue_task_rt
+kworker/-8         0d.h3.   90us : cpupri_set <-enqueue_task_rt
+kworker/-8         0d.h3.   91us : update_rt_migration <-enqueue_task_rt
+kworker/-8         0d.h3.   92us : _raw_spin_lock <-enqueue_task_rt
+kworker/-8         0d.h3.   92us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0d.h4.   93us : preempt_count_sub <-enqueue_task_rt
+kworker/-8         0d.h3.   94us : enqueue_top_rt_rq <-enqueue_task_rt
+kworker/-8         0d.h3.   95us : check_preempt_curr <-ttwu_do_activate.isra.0
+kworker/-8         0d.h3.   95us : __resched_curr.constprop.0 <-check_preempt_curr
+kworker/-8         0dNh3.   96us : task_woken_rt <-ttwu_do_activate.isra.0
+kworker/-8         0dNh2.   97us : _raw_spin_unlock_irqrestore <-try_to_wake_up
+kworker/-8         0dNh2.   97us : preempt_count_sub <-_raw_spin_unlock_irqrestore
+kworker/-8         0dNh1.   98us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0dNh..   99us : add_interrupt_randomness <-handle_irq_event
+kworker/-8         0dNh..   99us : fast_mix <-add_interrupt_randomness
+kworker/-8         0dNh..  100us : note_interrupt <-handle_irq_event
+kworker/-8         0dNh..  101us : _raw_spin_lock <-handle_irq_event
+kworker/-8         0dNh..  101us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh1.  102us : preempt_count_sub <-handle_edge_irq
+kworker/-8         0dNh..  103us : generic_handle_domain_irq <-dw_handle_msi_irq
+kworker/-8         0dNh..  103us : __irq_resolve_mapping <-generic_handle_domain_irq
+kworker/-8         0dNh..  104us : __rcu_read_lock <-__irq_resolve_mapping
+kworker/-8         0dNh..  105us : __rcu_read_unlock <-__irq_resolve_mapping
+kworker/-8         0dNh..  105us : handle_edge_irq <-generic_handle_domain_irq
+kworker/-8         0dNh..  106us : _raw_spin_lock <-handle_edge_irq
+kworker/-8         0dNh..  106us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh1.  108us : dw_msi_ack_irq <-handle_edge_irq
+kworker/-8         0dNh1.  108us : irq_chip_ack_parent <-dw_msi_ack_irq
+kworker/-8         0dNh1.  109us : dw_pci_bottom_ack <-irq_chip_ack_parent
+kworker/-8         0dNh1.  109us : dw_pcie_write_dbi <-dw_pci_bottom_ack
+kworker/-8         0dNh1.  110us : handle_irq_event <-handle_edge_irq
+kworker/-8         0dNh1.  111us : preempt_count_sub <-handle_irq_event
+kworker/-8         0dNh..  111us : __handle_irq_event_percpu <-handle_irq_event
+kworker/-8         0dNh..  112us : irq_default_primary_handler <-__handle_irq_event_percpu
+kworker/-8         0dNh..  113us : __irq_wake_thread <-__handle_irq_event_percpu
+kworker/-8         0dNh..  114us : wake_up_process <-__irq_wake_thread
+kworker/-8         0dNh..  114us : try_to_wake_up <-wake_up_process
+kworker/-8         0dNh..  115us : preempt_count_add <-try_to_wake_up
+kworker/-8         0dNh1.  116us : _raw_spin_lock_irqsave <-try_to_wake_up
+kworker/-8         0dNh1.  116us : preempt_count_add <-_raw_spin_lock_irqsave
+kworker/-8         0dNh2.  117us : select_task_rq_rt <-try_to_wake_up
+kworker/-8         0dNh2.  118us : __rcu_read_lock <-select_task_rq_rt
+kworker/-8         0dNh2.  119us : __rcu_read_unlock <-select_task_rq_rt
+kworker/-8         0dNh2.  119us : kthread_is_per_cpu <-try_to_wake_up
+kworker/-8         0dNh2.  120us : preempt_count_add <-try_to_wake_up
+kworker/-8         0dNh3.  121us : _raw_spin_lock <-try_to_wake_up
+kworker/-8         0dNh3.  122us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh4.  122us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0dNh3.  123us : update_rq_clock.part.0 <-try_to_wake_up
+kworker/-8         0dNh3.  124us : ttwu_do_activate.isra.0 <-try_to_wake_up
+kworker/-8         0dNh3.  125us : activate_task <-ttwu_do_activate.isra.0
+kworker/-8         0dNh3.  125us : enqueue_task_rt <-activate_task
+kworker/-8         0dNh3.  126us : dequeue_rt_stack <-enqueue_task_rt
+kworker/-8         0dNh3.  127us : cpupri_set <-enqueue_task_rt
+kworker/-8         0dNh3.  127us : update_rt_migration <-enqueue_task_rt
+kworker/-8         0dNh3.  128us : _raw_spin_lock <-enqueue_task_rt
+kworker/-8         0dNh3.  129us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh4.  129us : preempt_count_sub <-enqueue_task_rt
+kworker/-8         0dNh3.  130us : enqueue_top_rt_rq <-enqueue_task_rt
+kworker/-8         0dNh3.  131us : check_preempt_curr <-ttwu_do_activate.isra.0
+kworker/-8         0dNh3.  131us : __resched_curr.constprop.0 <-check_preempt_curr
+kworker/-8         0dNh3.  132us : arch_smp_send_reschedule <-__resched_curr.constprop.0
+kworker/-8         0dNh3.  133us : smp_cross_call <-arch_smp_send_reschedule
+kworker/-8         0dNh3.  133us : __ipi_send_mask <-smp_cross_call
+kworker/-8         0dNh3.  134us : gic_ipi_send_mask <-__ipi_send_mask
+kworker/-8         0dNh3.  135us : cpu_logical_map <-gic_ipi_send_mask
+kworker/-8         0dNh3.  135us : cpu_logical_map <-gic_ipi_send_mask
+kworker/-8         0dNh3.  136us : imx_gpcv2_raise_softirq <-smp_cross_call
+kworker/-8         0dNh3.  137us : task_woken_rt <-ttwu_do_activate.isra.0
+kworker/-8         0dNh2.  137us : _raw_spin_unlock_irqrestore <-try_to_wake_up
+kworker/-8         0dNh2.  138us : preempt_count_sub <-_raw_spin_unlock_irqrestore
+kworker/-8         0dNh1.  139us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0dNh..  139us : add_interrupt_randomness <-handle_irq_event
+kworker/-8         0dNh..  140us : fast_mix <-add_interrupt_randomness
+kworker/-8         0dNh..  141us : note_interrupt <-handle_irq_event
+kworker/-8         0dNh..  141us : _raw_spin_lock <-handle_irq_event
+kworker/-8         0dNh..  142us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh1.  143us : preempt_count_sub <-handle_edge_irq
+kworker/-8         0dNh..  143us : generic_handle_domain_irq <-dw_handle_msi_irq
+kworker/-8         0dNh..  144us : __irq_resolve_mapping <-generic_handle_domain_irq
+kworker/-8         0dNh..  145us : __rcu_read_lock <-__irq_resolve_mapping
+kworker/-8         0dNh..  145us : __rcu_read_unlock <-__irq_resolve_mapping
+kworker/-8         0dNh..  146us : handle_edge_irq <-generic_handle_domain_irq
+kworker/-8         0dNh..  147us : _raw_spin_lock <-handle_edge_irq
+kworker/-8         0dNh..  147us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh1.  148us : dw_msi_ack_irq <-handle_edge_irq
+kworker/-8         0dNh1.  149us : irq_chip_ack_parent <-dw_msi_ack_irq
+kworker/-8         0dNh1.  150us : dw_pci_bottom_ack <-irq_chip_ack_parent
+kworker/-8         0dNh1.  150us : dw_pcie_write_dbi <-dw_pci_bottom_ack
+kworker/-8         0dNh1.  151us : handle_irq_event <-handle_edge_irq
+kworker/-8         0dNh1.  152us : preempt_count_sub <-handle_irq_event
+kworker/-8         0dNh..  152us : __handle_irq_event_percpu <-handle_irq_event
+kworker/-8         0dNh..  153us : irq_default_primary_handler <-__handle_irq_event_percpu
+kworker/-8         0dNh..  154us : __irq_wake_thread <-__handle_irq_event_percpu
+kworker/-8         0dNh..  155us : wake_up_process <-__irq_wake_thread
+kworker/-8         0dNh..  155us : try_to_wake_up <-wake_up_process
+kworker/-8         0dNh..  156us : preempt_count_add <-try_to_wake_up
+kworker/-8         0dNh1.  156us : _raw_spin_lock_irqsave <-try_to_wake_up
+kworker/-8         0dNh1.  157us : preempt_count_add <-_raw_spin_lock_irqsave
+kworker/-8         0dNh2.  158us : select_task_rq_rt <-try_to_wake_up
+kworker/-8         0dNh2.  159us : __rcu_read_lock <-select_task_rq_rt
+kworker/-8         0dNh2.  159us : __rcu_read_unlock <-select_task_rq_rt
+kworker/-8         0dNh2.  160us : kthread_is_per_cpu <-try_to_wake_up
+kworker/-8         0dNh2.  161us : preempt_count_add <-try_to_wake_up
+kworker/-8         0dNh3.  161us : _raw_spin_lock <-try_to_wake_up
+kworker/-8         0dNh3.  162us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh4.  163us : queued_spin_lock_slowpath <-_raw_spin_lock
+kworker/-8         0dNh4.  165us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0dNh3.  166us : update_rq_clock.part.0 <-try_to_wake_up
+kworker/-8         0dNh3.  167us : ttwu_do_activate.isra.0 <-try_to_wake_up
+kworker/-8         0dNh3.  168us : activate_task <-ttwu_do_activate.isra.0
+kworker/-8         0dNh3.  168us : enqueue_task_rt <-activate_task
+kworker/-8         0dNh3.  169us : dequeue_rt_stack <-enqueue_task_rt
+kworker/-8         0dNh3.  170us : cpupri_set <-enqueue_task_rt
+kworker/-8         0dNh3.  170us : update_rt_migration <-enqueue_task_rt
+kworker/-8         0dNh3.  171us : _raw_spin_lock <-enqueue_task_rt
+kworker/-8         0dNh3.  172us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh4.  173us : preempt_count_sub <-enqueue_task_rt
+kworker/-8         0dNh3.  174us : enqueue_top_rt_rq <-enqueue_task_rt
+kworker/-8         0dNh3.  174us : check_preempt_curr <-ttwu_do_activate.isra.0
+kworker/-8         0dNh3.  175us : __resched_curr.constprop.0 <-check_preempt_curr
+kworker/-8         0dNh3.  176us : arch_smp_send_reschedule <-__resched_curr.constprop.0
+kworker/-8         0dNh3.  176us : smp_cross_call <-arch_smp_send_reschedule
+kworker/-8         0dNh3.  177us : __ipi_send_mask <-smp_cross_call
+kworker/-8         0dNh3.  178us : gic_ipi_send_mask <-__ipi_send_mask
+kworker/-8         0dNh3.  178us : cpu_logical_map <-gic_ipi_send_mask
+kworker/-8         0dNh3.  179us : cpu_logical_map <-gic_ipi_send_mask
+kworker/-8         0dNh3.  180us : imx_gpcv2_raise_softirq <-smp_cross_call
+kworker/-8         0dNh3.  180us : task_woken_rt <-ttwu_do_activate.isra.0
+kworker/-8         0dNh2.  181us : _raw_spin_unlock_irqrestore <-try_to_wake_up
+kworker/-8         0dNh2.  181us : preempt_count_sub <-_raw_spin_unlock_irqrestore
+kworker/-8         0dNh1.  182us : preempt_count_sub <-try_to_wake_up
+kworker/-8         0dNh..  183us : add_interrupt_randomness <-handle_irq_event
+kworker/-8         0dNh..  183us : fast_mix <-add_interrupt_randomness
+kworker/-8         0dNh..  184us : note_interrupt <-handle_irq_event
+kworker/-8         0dNh..  185us : _raw_spin_lock <-handle_irq_event
+kworker/-8         0dNh..  185us : preempt_count_add <-_raw_spin_lock
+kworker/-8         0dNh1.  186us : preempt_count_sub <-handle_edge_irq
+kworker/-8         0dNh..  187us : gic_eoimode1_eoi_irq <-dw_chained_msi_isr
+kworker/-8         0dNh..  188us : irq_exit_rcu <-el1_interrupt
+kworker/-8         0dNh..  188us : irqtime_account_irq <-__irq_exit_rcu
+kworker/-8         0dNh..  189us : preempt_count_sub <-__irq_exit_rcu
+kworker/-8         0dN...  190us : idle_cpu <-__irq_exit_rcu
+kworker/-8         0dN...  191us : preempt_schedule_irq <-el1_interrupt
+kworker/-8         0dN...  191us : preempt_count_add <-preempt_schedule_irq
+kworker/-8         0dN.1.  192us : preempt_schedule_irq <-el1_interrupt
+kworker/-8         0dN.1.  194us : tracer_hardirqs_on <-el1_interrupt
+kworker/-8         0dN.1.  197us : <stack trace>
+ => el1_interrupt
+ => el1h_64_irq_handler
+ => el1h_64_irq
+ => igb_rd32
+ => igb_ptp_rx_hang
+ => igb_watchdog_task
+ => process_one_work
+ => worker_thread
+ => kthread
+ => ret_from_fork
+

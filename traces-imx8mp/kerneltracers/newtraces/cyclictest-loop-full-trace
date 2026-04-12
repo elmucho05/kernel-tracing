@@ -1,4 +1,7 @@
-      trace-cmd-2944  [001]  2993.406911: funcgraph_exit:         0.875 us   |                                        }
+# trace-cmd record -p function_graph 
+
+
+       trace-cmd-2944  [001]  2993.406911: funcgraph_exit:         0.875 us   |                                        }
        trace-cmd-2944  [001]  2993.406912: funcgraph_entry:        1.125 us   |                                        update_rt_rq_load_avg();
        trace-cmd-2944  [001]  2993.406914: funcgraph_exit:         5.250 us   |                                      }
        trace-cmd-2944  [001]  2993.406916: funcgraph_entry:                   |                                      fpsimd_thread_switch() {
@@ -183,6 +186,7 @@
        ktimers/1-27    [001]  2993.407169: funcgraph_entry:                   |                update_rq_clock.part.0() {
        ktimers/1-27    [001]  2993.407170: funcgraph_entry:        0.750 us   |                  update_irq_load_avg();
        ktimers/1-27    [001]  2993.407172: funcgraph_exit:         2.500 us   |                }
+
        ktimers/1-27    [001]  2993.407173: funcgraph_entry:                   |                ttwu_do_activate.isra.0() {
        ktimers/1-27    [001]  2993.407174: funcgraph_entry:                   |                  activate_task() {
        ktimers/1-27    [001]  2993.407175: funcgraph_entry:                   |                    enqueue_task_fair() {
@@ -472,20 +476,327 @@
        trace-cmd-2944  [001]  2993.407658: funcgraph_entry:        1.500 us   |                                      preempt_count_add();
        trace-cmd-2944  [001]  2993.407661: funcgraph_entry:        1.625 us   |                                      preempt_count_sub();
 
-...
-...
-...
-...
-...
-...
-...
-...
-...
-...
-...
-DI SEGUITO ANCHE IL PATTERN DI RISVEGLIO
-
-   trace-cmd-2944  [001]  2993.428478: funcgraph_entry:        0.875 us   |                                              mte_thread_switch();
+       trace-cmd-2944  [001]  2993.428010: funcgraph_entry:                   |                                                            ktime_get() {
+       trace-cmd-2944  [001]  2993.428010: funcgraph_entry:        0.750 us   |                                                              arch_counter_read();
+       trace-cmd-2944  [001]  2993.428012: funcgraph_exit:         3.250 us   |                                                            }
+       trace-cmd-2944  [001]  2993.428013: funcgraph_entry:        0.875 us   |                                                            tick_sched_do_timer();
+       trace-cmd-2944  [001]  2993.428015: funcgraph_entry:                   |                                                            tick_sched_handle() {
+       trace-cmd-2944  [001]  2993.428015: funcgraph_entry:                   |                                                              update_process_times() {
+       trace-cmd-2944  [001]  2993.428016: funcgraph_entry:                   |                                                                account_process_tick() {
+       trace-cmd-2944  [001]  2993.428017: funcgraph_entry:                   |                                                                  irqtime_account_process_tick() {   trace-cmd-2944  [001]  2993.428018: funcgraph_entry:                   |                                                                    account_system_index_time() {    trace-cmd-2944  [001]  2993.428025: funcgraph_entry:        0.875 us   |                                                                      acct_account_cputime();
+       trace-cmd-2944  [001]  2993.428027: funcgraph_exit:         8.875 us   |                                                                    }
+       trace-cmd-2944  [001]  2993.428028: funcgraph_exit:       + 10.500 us  |                                                                  }
+       trace-cmd-2944  [001]  2993.428028: funcgraph_exit:       + 12.125 us  |                                                                }
+       trace-cmd-2944  [001]  2993.428029: funcgraph_entry:        0.875 us   |                                                                hrtimer_run_queues();
+       trace-cmd-2944  [001]  2993.428031: funcgraph_entry:                   |                                                                rcu_sched_clock_irq() {
+       trace-cmd-2944  [001]  2993.428032: funcgraph_entry:        0.750 us   |                                                                  rcu_qs();
+       trace-cmd-2944  [001]  2993.428034: funcgraph_entry:        0.875 us   |                                                                  rcu_is_cpu_rrupt_from_idle();      trace-cmd-2944  [001]  2993.428035: funcgraph_entry:        0.875 us   |                                                                  rcu_segcblist_ready_cbs();
+       trace-cmd-2944  [001]  2993.428037: funcgraph_entry:        0.875 us   |                                                                  rcu_is_cpu_rrupt_from_idle();      trace-cmd-2944  [001]  2993.428038: funcgraph_exit:         7.500 us   |                                                                }
+       trace-cmd-2944  [001]  2993.428039: funcgraph_entry:                   |                                                                scheduler_tick() {
+       trace-cmd-2944  [001]  2993.428040: funcgraph_entry:        0.750 us   |                                                                  housekeeping_test_cpu();
+       trace-cmd-2944  [001]  2993.428042: funcgraph_entry:        0.875 us   |                                                                  topology_scale_freq_tick();
+       trace-cmd-2944  [001]  2993.428043: funcgraph_entry:        0.750 us   |                                                                  preempt_count_add();
+       trace-cmd-2944  [001]  2993.428045: funcgraph_entry:                   |                                                                  _raw_spin_lock() {
+       trace-cmd-2944  [001]  2993.428046: funcgraph_entry:        0.875 us   |                                                                    preempt_count_add();
+       trace-cmd-2944  [001]  2993.428047: funcgraph_exit:         2.500 us   |                                                                  }
+       trace-cmd-2944  [001]  2993.428048: funcgraph_entry:        0.875 us   |                                                                  preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428050: funcgraph_entry:                   |                                                                  update_rq_clock.part.0() {
+       trace-cmd-2944  [001]  2993.428051: funcgraph_entry:        0.875 us   |                                                                    update_irq_load_avg();
+       trace-cmd-2944  [001]  2993.428052: funcgraph_exit:         2.625 us   |                                                                  }
+       trace-cmd-2944  [001]  2993.428053: funcgraph_entry:        1.000 us   |                                                                  update_thermal_load_avg();
+       trace-cmd-2944  [001]  2993.428055: funcgraph_entry:                   |                                                                  task_tick_fair() {
+       trace-cmd-2944  [001]  2993.428056: funcgraph_entry:                   |                                                                    __update_curr.isra.0() {
+       trace-cmd-2944  [001]  2993.428057: funcgraph_entry:        0.875 us   |                                                                      update_min_vruntime();
+       trace-cmd-2944  [001]  2993.428058: funcgraph_entry:                   |                                                                      __cgroup_account_cputime() {
+       trace-cmd-2944  [001]  2993.428059: funcgraph_entry:        0.750 us   |                                                                        preempt_count_add();
+       trace-cmd-2944  [001]  2993.428061: funcgraph_entry:        0.875 us   |                                                                        cgroup_rstat_updated();
+       trace-cmd-2944  [001]  2993.428062: funcgraph_entry:        0.750 us   |                                                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428059: funcgraph_entry:        0.750 us   |                                                                        preempt_count_add();
+       trace-cmd-2944  [001]  2993.428061: funcgraph_entry:        0.875 us   |                                                                        cgroup_rstat_updated();
+       trace-cmd-2944  [001]  2993.428062: funcgraph_entry:        0.750 us   |                                                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428064: funcgraph_exit:         5.625 us   |                                                                      }
+       trace-cmd-2944  [001]  2993.428065: funcgraph_exit:         8.875 us   |                                                                    }
+       trace-cmd-2944  [001]  2993.428065: funcgraph_entry:                   |                                                                    __update_load_avg_se() {
+       trace-cmd-2944  [001]  2993.428066: funcgraph_entry:        0.875 us   |                                                                      __accumulate_pelt_segments();
+       trace-cmd-2944  [001]  2993.428068: funcgraph_exit:         2.625 us   |                                                                    }
+       trace-cmd-2944  [001]  2993.428069: funcgraph_entry:                   |                                                                    __update_load_avg_cfs_rq() {
+       trace-cmd-2944  [001]  2993.428070: funcgraph_entry:        0.750 us   |                                                                      __accumulate_pelt_segments();
+       trace-cmd-2944  [001]  2993.428071: funcgraph_exit:         2.500 us   |                                                                    }
+       trace-cmd-2944  [001]  2993.428072: funcgraph_entry:        1.000 us   |                                                                    hrtimer_active();
+       trace-cmd-2944  [001]  2993.428074: funcgraph_exit:       + 19.000 us  |                                                                  }
+       trace-cmd-2944  [001]  2993.428074: funcgraph_entry:        0.875 us   |                                                                  calc_global_load_tick();
+       trace-cmd-2944  [001]  2993.428076: funcgraph_entry:        1.000 us   |                                                                  task_tick_mm_cid();
+       trace-cmd-2944  [001]  2993.428078: funcgraph_entry:        0.875 us   |                                                                  preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428079: funcgraph_entry:                   |                                                                  perf_event_task_tick() {
+       trace-cmd-2944  [001]  2993.428080: funcgraph_entry:        0.750 us   |                                                                    perf_adjust_freq_unthr_context();
+       trace-cmd-2944  [001]  2993.428082: funcgraph_entry:        0.750 us   |                                                                    __rcu_read_lock();
+       trace-cmd-2944  [001]  2993.428083: funcgraph_entry:        0.750 us   |                                                                    __rcu_read_unlock();
+       trace-cmd-2944  [001]  2993.428085: funcgraph_exit:         5.625 us   |                                                                  }
+       trace-cmd-2944  [001]  2993.428086: funcgraph_entry:        0.875 us   |                                                                  trigger_load_balance();
+       trace-cmd-2944  [001]  2993.428087: funcgraph_exit:       + 48.000 us  |                                                                }
+       trace-cmd-2944  [001]  2993.428088: funcgraph_entry:        1.000 us   |                                                                run_posix_cpu_timers();
+       trace-cmd-2944  [001]  2993.428090: funcgraph_exit:       + 74.125 us  |                                                              }
+       trace-cmd-2944  [001]  2993.428090: funcgraph_entry:        0.875 us   |                                                              profile_tick();
+       trace-cmd-2944  [001]  2993.428092: funcgraph_exit:       + 77.500 us  |                                                            }
+       trace-cmd-2944  [001]  2993.428093: funcgraph_entry:        0.875 us   |                                                            hrtimer_forward();
+       trace-cmd-2944  [001]  2993.428094: funcgraph_exit:       + 86.375 us  |                                                          }
+       trace-cmd-2944  [001]  2993.428095: funcgraph_entry:                   |                                                          _raw_spin_lock_irq() {
+       trace-cmd-2944  [001]  2993.428096: funcgraph_entry:        0.750 us   |                                                            preempt_count_add();
+       trace-cmd-2944  [001]  2993.428097: funcgraph_exit:         2.375 us   |                                                          }
+       trace-cmd-2944  [001]  2993.428098: funcgraph_entry:        0.875 us   |                                                          enqueue_hrtimer();
+       trace-cmd-2944  [001]  2993.428100: funcgraph_exit:       + 96.375 us  |                                                        }
+       trace-cmd-2944  [001]  2993.428101: funcgraph_entry:                   |                                                        hrtimer_update_next_event() {
+       trace-cmd-2944  [001]  2993.428102: funcgraph_entry:        0.875 us   |                                                          __hrtimer_next_event_base();
+       trace-cmd-2944  [001]  2993.428103: funcgraph_entry:        0.750 us   |                                                          __hrtimer_next_event_base();
+       trace-cmd-2944  [001]  2993.428105: funcgraph_exit:         4.000 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428106: funcgraph_entry:                   |                                                        _raw_spin_unlock_irqrestore() {
+       trace-cmd-2944  [001]  2993.428107: funcgraph_entry:        0.750 us   |                                                          preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428109: funcgraph_exit:         3.125 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428110: funcgraph_entry:                   |                                                        tick_program_event() {
+       trace-cmd-2944  [001]  2993.428110: funcgraph_entry:                   |                                                          clockevents_program_event() {
+       trace-cmd-2944  [001]  2993.428111: funcgraph_entry:                   |                                                            ktime_get() {
+       trace-cmd-2944  [001]  2993.428112: funcgraph_entry:        0.875 us   |                                                              arch_counter_read();
+       trace-cmd-2944  [001]  2993.428114: funcgraph_exit:         2.500 us   |                                                            }
+       trace-cmd-2944  [001]  2993.428115: funcgraph_entry:        0.875 us   |                                                            arch_timer_set_next_event_phys();
+       trace-cmd-2944  [001]  2993.428116: funcgraph_exit:         5.625 us   |                                                          }
+       trace-cmd-2944  [001]  2993.428117: funcgraph_exit:         7.250 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428117: funcgraph_exit:       ! 121.125 us |                                                      }
+       trace-cmd-2944  [001]  2993.428118: funcgraph_exit:       ! 122.750 us |                                                    }
+       trace-cmd-2944  [001]  2993.428119: funcgraph_entry:        0.875 us   |                                                    gic_eoimode1_eoi_irq();
+       trace-cmd-2944  [001]  2993.428121: funcgraph_exit:       ! 126.000 us |                                                  }
+       trace-cmd-2944  [001]  2993.428121: funcgraph_exit:       ! 132.500 us |                                                }
+       trace-cmd-2944  [001]  2993.428122: funcgraph_exit:       ! 134.125 us |                                              }
+       trace-cmd-2944  [001]  2993.428123: funcgraph_exit:       ! 135.750 us |                                            }
+       trace-cmd-2944  [001]  2993.428124: funcgraph_entry:                   |                                            irq_exit_rcu() {
+       trace-cmd-2944  [001]  2993.428125: funcgraph_entry:        0.875 us   |                                              irqtime_account_irq();
+       trace-cmd-2944  [001]  2993.428126: funcgraph_entry:        0.875 us   |                                              preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428128: funcgraph_entry:        0.750 us   |                                              idle_cpu();
+       trace-cmd-2944  [001]  2993.428130: funcgraph_exit:         5.875 us   |                                            }
+       trace-cmd-2944  [001]  2993.428131: funcgraph_exit:       ! 157.250 us |                                          }
+       trace-cmd-2944  [001]  2993.428133: funcgraph_entry:                   |                                          ___slab_alloc() {
+       trace-cmd-2944  [001]  2993.428135: funcgraph_entry:        1.625 us   |                                            migrate_disable();
+       trace-cmd-2944  [001]  2993.428138: funcgraph_entry:                   |                                            rt_spin_lock() {
+       trace-cmd-2944  [001]  2993.428140: funcgraph_entry:        1.625 us   |                                              __rcu_read_lock();
+       trace-cmd-2944  [001]  2993.428143: funcgraph_entry:        1.500 us   |                                              migrate_disable();
+       trace-cmd-2944  [001]  2993.428146: funcgraph_exit:         7.750 us   |                                            }
+       trace-cmd-2944  [001]  2993.428147: funcgraph_entry:                   |                                            rt_spin_unlock() {
+       trace-cmd-2944  [001]  2993.428149: funcgraph_entry:        1.625 us   |                                              migrate_enable();
+       trace-cmd-2944  [001]  2993.428152: funcgraph_entry:        1.625 us   |                                              __rcu_read_unlock();
+       trace-cmd-2944  [001]  2993.428155: funcgraph_exit:         7.875 us   |                                            }
+       trace-cmd-2944  [001]  2993.428157: funcgraph_entry:        1.500 us   |                                            migrate_enable();
+       trace-cmd-2944  [001]  2993.428160: funcgraph_exit:       + 26.500 us  |                                          }
+       trace-cmd-2944  [001]  2993.428161: funcgraph_entry:                   |                                          migrate_enable() {
+       trace-cmd-2944  [001]  2993.428163: funcgraph_entry:        1.625 us   |                                            preempt_count_add();
+       trace-cmd-2944  [001]  2993.428166: funcgraph_entry:        1.500 us   |                                            preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428169: funcgraph_exit:         7.875 us   |                                          }
+       trace-cmd-2944  [001]  2993.428171: funcgraph_exit:       ! 201.000 us |                                        }
+       trace-cmd-2944  [001]  2993.428172: funcgraph_entry:        1.625 us   |                                        rt_mutex_base_init();
+       trace-cmd-2944  [001]  2993.428175: funcgraph_entry:        1.625 us   |                                        preempt_count_add();
+       trace-cmd-2944  [001]  2993.428178: funcgraph_entry:        1.500 us   |                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428181: funcgraph_exit:       ! 213.375 us |                                      }
+       trace-cmd-2944  [001]  2993.428183: funcgraph_exit:       ! 216.500 us |                                    }
+       trace-cmd-2944  [001]  2993.428184: funcgraph_entry:                   |                                    rt_spin_lock() {
+       trace-cmd-2944  [001]  2993.428186: funcgraph_entry:        1.625 us   |                                      __rcu_read_lock();
+       trace-cmd-2944  [001]  2993.428189: funcgraph_entry:                   |                                      migrate_disable() {
+       trace-cmd-2944  [001]  2993.428191: funcgraph_entry:        1.625 us   |                                        preempt_count_add();
+       trace-cmd-2944  [001]  2993.428194: funcgraph_entry:        1.625 us   |                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428197: funcgraph_exit:         7.750 us   |                                      }
+       trace-cmd-2944  [001]  2993.428198: funcgraph_exit:       + 13.875 us  |                                    }
+       trace-cmd-2944  [001]  2993.428200: funcgraph_entry:                   |                                    rt_spin_unlock() {
+       trace-cmd-2944  [001]  2993.428201: funcgraph_entry:                   |                                      migrate_enable() {
+       trace-cmd-2944  [001]  2993.428203: funcgraph_entry:        1.500 us   |                                        preempt_count_add();
+       trace-cmd-2944  [001]  2993.428206: funcgraph_entry:        1.625 us   |                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428209: funcgraph_exit:         7.750 us   |                                      }
+       trace-cmd-2944  [001]  2993.428211: funcgraph_entry:        1.500 us   |                                      __rcu_read_unlock();
+       trace-cmd-2944  [001]  2993.428214: funcgraph_exit:       + 13.875 us  |                                    }
+       trace-cmd-2944  [001]  2993.428215: funcgraph_exit:       ! 250.500 us |                                  }
+       trace-cmd-2944  [001]  2993.428217: funcgraph_exit:       ! 253.500 us |                                }
+       trace-cmd-2944  [001]  2993.428218: funcgraph_entry:                   |                                ext4_da_get_block_prep() {
+       trace-cmd-2944  [001]  2993.428220: funcgraph_entry:                   |                                  ext4_es_lookup_extent() {
+       trace-cmd-2944  [001]  2993.428222: funcgraph_entry:                   |                                    rt_read_lock() {
+       trace-cmd-2944  [001]  2993.428223: funcgraph_entry:        1.500 us   |                                      __rcu_read_lock();
+       trace-cmd-2944  [001]  2993.428226: funcgraph_entry:                   |                                      migrate_disable() {
+       trace-cmd-2944  [001]  2993.428228: funcgraph_entry:        1.625 us   |                                        preempt_count_add();
+       trace-cmd-2944  [001]  2993.428231: funcgraph_entry:        1.625 us   |                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428234: funcgraph_exit:         7.750 us   |                                      }
+       trace-cmd-2944  [001]  2993.428235: funcgraph_exit:       + 14.000 us  |                                    }
+       trace-cmd-2944  [001]  2993.428238: funcgraph_entry:                   |                                    rt_read_unlock() {
+       trace-cmd-2944  [001]  2993.428239: funcgraph_entry:                   |                                      migrate_enable() {
+       trace-cmd-2944  [001]  2993.428241: funcgraph_entry:        1.625 us   |                                        preempt_count_add();
+       trace-cmd-2944  [001]  2993.428244: funcgraph_entry:        1.500 us   |                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428247: funcgraph_exit:         7.625 us   |                                      }
+       trace-cmd-2944  [001]  2993.428249: funcgraph_entry:        1.500 us   |                                      __rcu_read_unlock();
+       trace-cmd-2944  [001]  2993.428252: funcgraph_exit:       + 13.875 us  |                                    }
+       trace-cmd-2944  [001]  2993.428253: funcgraph_exit:       + 33.375 us  |                                  }
+       trace-cmd-2944  [001]  2993.428255: funcgraph_entry:        1.500 us   |                                  down_read();
+       trace-cmd-2944  [001]  2993.428258: funcgraph_entry:                   |                                  ext4_da_reserve_space() {
+       trace-cmd-2944  [001]  2993.428260: funcgraph_entry:                   |                                    __dquot_alloc_space() {
+       trace-cmd-2944  [001]  2993.428261: funcgraph_entry:                   |                                      rt_spin_lock() {
+       trace-cmd-2944  [001]  2993.428263: funcgraph_entry:        1.500 us   |                                        __rcu_read_lock();
+       trace-cmd-2944  [001]  2993.428266: funcgraph_entry:                   |                                        migrate_disable() {
+       trace-cmd-2944  [001]  2993.428268: funcgraph_entry:        1.625 us   |                                          preempt_count_add();
+       trace-cmd-2944  [001]  2993.428271: funcgraph_entry:        2.250 us   |                                          preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428274: funcgraph_exit:         8.375 us   |                                        }
+       trace-cmd-2944  [001]  2993.428276: funcgraph_exit:       + 14.625 us  |                                      }
+       trace-cmd-2944  [001]  2993.428278: funcgraph_entry:                   |                                      inode_reserved_space() {
+       trace-cmd-2944  [001]  2993.428279: funcgraph_entry:        1.625 us   |                                        ext4_get_reserved_space();
+       trace-cmd-2944  [001]  2993.428282: funcgraph_exit:         4.750 us   |                                      }
+       trace-cmd-2944  [001]  2993.428284: funcgraph_entry:                   |                                      rt_spin_unlock() {
+       trace-cmd-2944  [001]  2993.428285: funcgraph_entry:                   |                                        migrate_enable() {
+       trace-cmd-2944  [001]  2993.428287: funcgraph_entry:                   |                                          preempt_count_add() {
+       trace-cmd-2944  [001]  2993.428288: funcgraph_entry:                   |                                            irq_enter_rcu() {
+       trace-cmd-2944  [001]  2993.428289: funcgraph_entry:        0.875 us   |                                              preempt_count_add();
+       trace-cmd-2944  [001]  2993.428291: funcgraph_entry:        0.875 us   |                                              irqtime_account_irq();
+       trace-cmd-2944  [001]  2993.428293: funcgraph_exit:         4.250 us   |                                            }
+       trace-cmd-2944  [001]  2993.428294: funcgraph_entry:                   |                                            do_interrupt_handler() {
+       trace-cmd-2944  [001]  2993.428294: funcgraph_entry:                   |                                              gic_handle_irq() {
+       trace-cmd-2944  [001]  2993.428295: funcgraph_entry:                   |                                                generic_handle_domain_irq() {
+       trace-cmd-2944  [001]  2993.428296: funcgraph_entry:                   |                                                  __irq_resolve_mapping() {
+       trace-cmd-2944  [001]  2993.428297: funcgraph_entry:        0.875 us   |                                                    __rcu_read_lock();
+       trace-cmd-2944  [001]  2993.428299: funcgraph_entry:        0.875 us   |                                                    __rcu_read_unlock();
+       trace-cmd-2944  [001]  2993.428300: funcgraph_exit:         4.125 us   |                                                  }
+       trace-cmd-2944  [001]  2993.428301: funcgraph_entry:                   |                                                  handle_percpu_devid_irq() {
+       trace-cmd-2944  [001]  2993.428302: funcgraph_entry:                   |                                                    arch_timer_handler_phys() {
+       trace-cmd-2944  [001]  2993.428303: funcgraph_entry:                   |                                                      hrtimer_interrupt() {
+       trace-cmd-2944  [001]  2993.428304: funcgraph_entry:                   |                                                        _raw_spin_lock_irqsave() {
+       trace-cmd-2944  [001]  2993.428305: funcgraph_entry:        0.875 us   |                                                          preempt_count_add();
+       trace-cmd-2944  [001]  2993.428306: funcgraph_exit:         2.375 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428307: funcgraph_entry:                   |                                                        ktime_get_update_offsets_now() {
+       trace-cmd-2944  [001]  2993.428308: funcgraph_entry:        0.875 us   |                                                          arch_counter_read();
+       trace-cmd-2944  [001]  2993.428309: funcgraph_exit:         2.500 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428310: funcgraph_entry:        0.875 us   |                                                        raise_hrtimer_softirq();
+       trace-cmd-2944  [001]  2993.428312: funcgraph_entry:        0.875 us   |                                                        __hrtimer_run_queues();
+       trace-cmd-2944  [001]  2993.428314: funcgraph_entry:                   |                                                        hrtimer_update_next_event() {
+       trace-cmd-2944  [001]  2993.428315: funcgraph_entry:        0.875 us   |                                                          __hrtimer_next_event_base();
+       trace-cmd-2944  [001]  2993.428316: funcgraph_exit:         2.500 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428317: funcgraph_entry:                   |                                                        _raw_spin_unlock_irqrestore() {
+       trace-cmd-2944  [001]  2993.428318: funcgraph_entry:        0.750 us   |                                                          preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428319: funcgraph_exit:         2.375 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428320: funcgraph_entry:                   |                                                        tick_program_event() {
+       trace-cmd-2944  [001]  2993.428321: funcgraph_entry:                   |                                                          clockevents_program_event() {
+       trace-cmd-2944  [001]  2993.428322: funcgraph_entry:                   |                                                            ktime_get() {
+       trace-cmd-2944  [001]  2993.428323: funcgraph_entry:        0.750 us   |                                                              arch_counter_read();
+       trace-cmd-2944  [001]  2993.428324: funcgraph_exit:         2.375 us   |                                                            }
+       trace-cmd-2944  [001]  2993.428325: funcgraph_entry:        0.750 us   |                                                            arch_timer_set_next_event_phys();
+       trace-cmd-2944  [001]  2993.428327: funcgraph_exit:         5.625 us   |                                                          }
+       trace-cmd-2944  [001]  2993.428327: funcgraph_exit:         7.250 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428328: funcgraph_exit:       + 25.000 us  |                                                      }
+       trace-cmd-2944  [001]  2993.428329: funcgraph_exit:       + 26.750 us  |                                                    }
+       trace-cmd-2944  [001]  2993.428330: funcgraph_entry:        0.750 us   |                                                    gic_eoimode1_eoi_irq();
+       trace-cmd-2944  [001]  2993.428331: funcgraph_exit:       + 29.750 us  |                                                  }
+       trace-cmd-2944  [001]  2993.428332: funcgraph_exit:       + 36.500 us  |                                                }
+       trace-cmd-2944  [001]  2993.428332: funcgraph_exit:       + 38.125 us  |                                              }
+       trace-cmd-2944  [001]  2993.428333: funcgraph_exit:       + 39.625 us  |                                            }
+       trace-cmd-2944  [001]  2993.428334: funcgraph_entry:                   |                                            irq_exit_rcu() {
+       trace-cmd-2944  [001]  2993.428335: funcgraph_entry:        1.000 us   |                                              irqtime_account_irq();
+       trace-cmd-2944  [001]  2993.428337: funcgraph_entry:        0.875 us   |                                              preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428338: funcgraph_entry:                   |                                              wake_up_process() {
+       trace-cmd-2944  [001]  2993.428339: funcgraph_entry:                   |                                                try_to_wake_up() {
+       trace-cmd-2944  [001]  2993.428340: funcgraph_entry:        1.250 us   |                                                  preempt_count_add();
+       trace-cmd-2944  [001]  2993.428342: funcgraph_entry:                   |                                                  _raw_spin_lock_irqsave() {
+       trace-cmd-2944  [001]  2993.428343: funcgraph_entry:        0.750 us   |                                                    preempt_count_add();
+       trace-cmd-2944  [001]  2993.428345: funcgraph_exit:         2.875 us   |                                                  }
+       trace-cmd-2944  [001]  2993.428346: funcgraph_entry:        1.000 us   |                                                  kthread_is_per_cpu();
+       trace-cmd-2944  [001]  2993.428348: funcgraph_entry:        0.750 us   |                                                  preempt_count_add();
+       trace-cmd-2944  [001]  2993.428350: funcgraph_entry:                   |                                                  _raw_spin_lock() {
+       trace-cmd-2944  [001]  2993.428350: funcgraph_entry:        0.750 us   |                                                    preempt_count_add();
+       trace-cmd-2944  [001]  2993.428352: funcgraph_exit:         2.500 us   |                                                  }
+       trace-cmd-2944  [001]  2993.428353: funcgraph_entry:        0.875 us   |                                                  preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428354: funcgraph_entry:                   |                                                  update_rq_clock.part.0() {
+       trace-cmd-2944  [001]  2993.428355: funcgraph_entry:        0.875 us   |                                                    update_irq_load_avg();
+       trace-cmd-2944  [001]  2993.428357: funcgraph_exit:         2.625 us   |                                                  }
+       trace-cmd-2944  [001]  2993.428358: funcgraph_entry:                   |                                                  ttwu_do_activate.isra.0() {
+       trace-cmd-2944  [001]  2993.428359: funcgraph_entry:                   |                                                    activate_task() {
+       trace-cmd-2944  [001]  2993.428360: funcgraph_entry:                   |                                                      enqueue_task_rt() {
+       trace-cmd-2944  [001]  2993.428361: funcgraph_entry:        1.125 us   |                                                        dequeue_rt_stack();
+       trace-cmd-2944  [001]  2993.428363: funcgraph_entry:        1.000 us   |                                                        cpupri_set();
+       trace-cmd-2944  [001]  2993.428365: funcgraph_entry:        0.875 us   |                                                        update_rt_migration();
+       trace-cmd-2944  [001]  2993.428366: funcgraph_entry:                   |                                                        _raw_spin_lock() {
+       trace-cmd-2944  [001]  2993.428367: funcgraph_entry:        0.750 us   |                                                          preempt_count_add();
+       trace-cmd-2944  [001]  2993.428368: funcgraph_exit:         2.375 us   |                                                        }
+       trace-cmd-2944  [001]  2993.428369: funcgraph_entry:        1.000 us   |                                                        preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428371: funcgraph_entry:        0.875 us   |                                                        enqueue_top_rt_rq();
+       trace-cmd-2944  [001]  2993.428373: funcgraph_exit:       + 12.875 us  |                                                      }
+       trace-cmd-2944  [001]  2993.428373: funcgraph_exit:       + 14.750 us  |                                                    }
+       trace-cmd-2944  [001]  2993.428374: funcgraph_entry:                   |                                                    check_preempt_curr() {
+       trace-cmd-2944  [001]  2993.428375: funcgraph_entry:        0.875 us   |                                                      __resched_curr.constprop.0();
+       trace-cmd-2944  [001]  2993.428377: funcgraph_exit:         2.375 us   |                                                    }
+       trace-cmd-2944  [001]  2993.428378: funcgraph_entry:        0.875 us   |                                                    task_woken_rt();
+       trace-cmd-2944  [001]  2993.428380: funcgraph_exit:       + 22.375 us  |                                                  }
+       trace-cmd-2944  [001]  2993.428381: funcgraph_entry:                   |                                                  _raw_spin_unlock_irqrestore() {
+       trace-cmd-2944  [001]  2993.428383: funcgraph_entry:        1.625 us   |                                                    preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428384: funcgraph_exit:         3.250 us   |                                                  }
+       trace-cmd-2944  [001]  2993.428385: funcgraph_entry:        1.000 us   |                                                  preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428387: funcgraph_exit:       + 47.500 us  |                                                }
+       trace-cmd-2944  [001]  2993.428388: funcgraph_exit:       + 49.000 us  |                                              }
+       trace-cmd-2944  [001]  2993.428388: funcgraph_entry:        0.875 us   |                                              idle_cpu();
+       trace-cmd-2944  [001]  2993.428390: funcgraph_exit:       + 56.000 us  |                                            }
+       trace-cmd-2944  [001]  2993.428391: funcgraph_entry:                   |                                            preempt_schedule_irq() {
+       trace-cmd-2944  [001]  2993.428392: funcgraph_entry:        0.875 us   |                                              preempt_count_add();
+       trace-cmd-2944  [001]  2993.428395: funcgraph_entry:                   |                                              rcu_note_context_switch() {
+       trace-cmd-2944  [001]  2993.428396: funcgraph_entry:                   |                                                _raw_spin_lock() {
+       trace-cmd-2944  [001]  2993.428397: funcgraph_entry:        0.750 us   |                                                  preempt_count_add();
+       trace-cmd-2944  [001]  2993.428398: funcgraph_exit:         2.625 us   |                                                }
+       trace-cmd-2944  [001]  2993.428399: funcgraph_entry:        0.875 us   |                                                preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428401: funcgraph_entry:        0.750 us   |                                                rcu_qs();
+       trace-cmd-2944  [001]  2993.428403: funcgraph_exit:         7.875 us   |                                              }
+       trace-cmd-2944  [001]  2993.428403: funcgraph_entry:        0.875 us   |                                              preempt_count_add();
+       trace-cmd-2944  [001]  2993.428405: funcgraph_entry:                   |                                              _raw_spin_lock() {
+       trace-cmd-2944  [001]  2993.428406: funcgraph_entry:        0.750 us   |                                                preempt_count_add();
+       trace-cmd-2944  [001]  2993.428407: funcgraph_exit:         2.500 us   |                                              }
+       trace-cmd-2944  [001]  2993.428408: funcgraph_entry:        0.750 us   |                                              preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428410: funcgraph_entry:        0.750 us   |                                              balance_fair();
+       trace-cmd-2944  [001]  2993.428412: funcgraph_entry:                   |                                              put_prev_task_fair() {
+       trace-cmd-2944  [001]  2993.428412: funcgraph_entry:                   |                                                __update_curr.isra.0() {
+       trace-cmd-2944  [001]  2993.428413: funcgraph_entry:        1.000 us   |                                                  update_min_vruntime();
+       trace-cmd-2944  [001]  2993.428415: funcgraph_entry:                   |                                                  __cgroup_account_cputime() {
+       trace-cmd-2944  [001]  2993.428416: funcgraph_entry:        0.750 us   |                                                    preempt_count_add();
+       trace-cmd-2944  [001]  2993.428417: funcgraph_entry:        0.875 us   |                                                    cgroup_rstat_updated();
+       trace-cmd-2944  [001]  2993.428419: funcgraph_entry:        0.750 us   |                                                    preempt_count_sub();
+       trace-cmd-2944  [001]  2993.428420: funcgraph_exit:         5.500 us   |                                                  }
+       trace-cmd-2944  [001]  2993.428421: funcgraph_exit:         8.875 us   |                                                }
+       trace-cmd-2944  [001]  2993.428422: funcgraph_entry:        1.000 us   |                                                __enqueue_entity();
+       trace-cmd-2944  [001]  2993.428424: funcgraph_entry:        0.875 us   |                                                __update_load_avg_se();
+       trace-cmd-2944  [001]  2993.428426: funcgraph_entry:        1.000 us   |                                                __update_load_avg_cfs_rq();
+       trace-cmd-2944  [001]  2993.428427: funcgraph_exit:       + 15.750 us  |                                              }
+       trace-cmd-2944  [001]  2993.428428: funcgraph_entry:        0.875 us   |                                              pick_next_task_stop();
+       trace-cmd-2944  [001]  2993.428430: funcgraph_entry:        0.875 us   |                                              pick_next_task_dl();
+       trace-cmd-2944  [001]  2993.428431: funcgraph_entry:                   |                                              pick_next_task_rt() {
+       trace-cmd-2944  [001]  2993.428432: funcgraph_entry:        0.750 us   |                                                pick_task_rt();
+       trace-cmd-2944  [001]  2993.428434: funcgraph_entry:        0.875 us   |                                                update_rt_rq_load_avg();
+       trace-cmd-2944  [001]  2993.428436: funcgraph_exit:         4.375 us   |                                              }
+       trace-cmd-2944  [001]  2993.428437: funcgraph_entry:                   |                                              __do_set_cpus_allowed() {
+       trace-cmd-2944  [001]  2993.428438: funcgraph_entry:                   |                                                dequeue_task_fair() {
+       trace-cmd-2944  [001]  2993.428438: funcgraph_entry:        0.875 us   |                                                  __update_curr.isra.0();
+       trace-cmd-2944  [001]  2993.428440: funcgraph_entry:        1.000 us   |                                                  __update_load_avg_se();
+       trace-cmd-2944  [001]  2993.428442: funcgraph_entry:        0.750 us   |                                                  __update_load_avg_cfs_rq();
+       trace-cmd-2944  [001]  2993.428443: funcgraph_entry:        0.750 us   |                                                  avg_vruntime();
+       trace-cmd-2944  [001]  2993.428445: funcgraph_entry:        1.000 us   |                                                  __dequeue_entity();
+       trace-cmd-2944  [001]  2993.428447: funcgraph_exit:         9.250 us   |                                                }
+       trace-cmd-2944  [001]  2993.428448: funcgraph_entry:        0.875 us   |                                                set_cpus_allowed_common();
+       trace-cmd-2944  [001]  2993.428449: funcgraph_entry:                   |                                                enqueue_task_fair() {
+       trace-cmd-2944  [001]  2993.428450: funcgraph_entry:        0.750 us   |                                                  __update_curr.isra.0();
+       trace-cmd-2944  [001]  2993.428452: funcgraph_entry:        0.750 us   |                                                  __update_load_avg_se();
+       trace-cmd-2944  [001]  2993.428454: funcgraph_entry:        0.875 us   |                                                  __update_load_avg_cfs_rq();
+       trace-cmd-2944  [001]  2993.428455: funcgraph_entry:                   |                                                  place_entity() {
+       trace-cmd-2944  [001]  2993.428456: funcgraph_entry:        0.875 us   |                                                    avg_vruntime();
+       trace-cmd-2944  [001]  2993.428457: funcgraph_exit:         2.375 us   |                                                  }
+       trace-cmd-2944  [001]  2993.428459: funcgraph_entry:        0.875 us   |                                                  __enqueue_entity();
+       trace-cmd-2944  [001]  2993.428460: funcgraph_exit:       + 10.875 us  |                                                }
+       trace-cmd-2944  [001]  2993.428461: funcgraph_exit:       + 24.500 us  |                                              }
+       trace-cmd-2944  [001]  2993.428463: funcgraph_entry:                   |                                              fpsimd_thread_switch() {
+       trace-cmd-2944  [001]  2993.428464: funcgraph_entry:        0.875 us   |                                                __get_cpu_fpsimd_context();
+       trace-cmd-2944  [001]  2993.428465: funcgraph_entry:        1.000 us   |                                                fpsimd_save();
+       trace-cmd-2944  [001]  2993.428467: funcgraph_entry:        0.875 us   |                                                __put_cpu_fpsimd_context();
+       trace-cmd-2944  [001]  2993.428469: funcgraph_exit:         6.250 us   |                                              }
+       trace-cmd-2944  [001]  2993.428470: funcgraph_entry:        0.750 us   |                                              tls_preserve_current_state();
+       trace-cmd-2944  [001]  2993.428472: funcgraph_entry:        1.000 us   |                                              hw_breakpoint_thread_switch();
+       trace-cmd-2944  [001]  2993.428473: funcgraph_entry:                   |                                              erratum_1418040_thread_switch() {
+       trace-cmd-2944  [001]  2993.428474: funcgraph_entry:                   |                                                this_cpu_has_cap() {
+       trace-cmd-2944  [001]  2993.428475: funcgraph_entry:        0.875 us   |                                                  is_affected_midr_range_list();
+       trace-cmd-2944  [001]  2993.428477: funcgraph_exit:         2.500 us   |                                                }
+       trace-cmd-2944  [001]  2993.428477: funcgraph_exit:         4.000 us   |                                              }
+        trace-cmd-2944  [001]  2993.428478: funcgraph_entry:        0.875 us   |                                              mte_thread_switch();
        ktimers/1-27    [001]  2993.428481: funcgraph_entry:        1.875 us   |    finish_task_switch.isra.0();
        ktimers/1-27    [001]  2993.428485: funcgraph_entry:        1.625 us   |    preempt_count_sub();
        ktimers/1-27    [001]  2993.428488: funcgraph_exit:       # 10585.500 us |  }
@@ -658,6 +969,17 @@ DI SEGUITO ANCHE IL PATTERN DI RISVEGLIO
        ktimers/1-27    [001]  2993.428760: funcgraph_entry:        1.000 us   |        is_affected_midr_range_list();
        ktimers/1-27    [001]  2993.428762: funcgraph_exit:         2.625 us   |      }
        ktimers/1-27    [001]  2993.428762: funcgraph_exit:         4.875 us   |    }
+
+      4. Schedule ed uscita dalla sleep
+        Lo scheduler esegue il cambio di contesto:
+        La CPU torna a cyclictest, che come prima cosa sblocca i registri (finish_task_switch), termina la nanosleep ed esce dalla system call ritornando in userspace.
+        ktimers/1-27    [001]                 hrtimer_wakeup() {
+        ktimers/1-27    [001]                   wake_up_process() {
+        ktimers/1-27    [001]                     try_to_wake_up() {
+
+
+
+
        ktimers/1-27    [001]  2993.428763: funcgraph_entry:        0.750 us   |    mte_thread_switch();
       cyclictest-2641  [001]  2993.428766: funcgraph_entry:        2.375 us   |                  finish_task_switch.isra.0();
       cyclictest-2641  [001]  2993.428770: funcgraph_entry:        1.625 us   |                  preempt_count_sub();
