@@ -7,7 +7,6 @@ $ trace-cmd record -e timer:hrtimer_start -e timer:hrtimer_expire_entry -e sched
 # Questo comportamento coincide con quello visto all'interno della traccia presente nel file `cyclictest-loop-pattern`.
 #
 # Per la traccia completa relativa ai timer, consultare il file `hrtimer-full-trace`
-# Per la traccia completa dove si dimostra il loop di esecuzione di cyclictest consultare il file `cyclictest-loop-full-trace` oppure `cyclictest-loop-pattern`
 
 ktimers/1-27    [001]   595.551820: hrtimer_expire_entry: hrtimer=0xffff80008430bd30 function=hrtimer_wakeup now=595546652000
        ktimers/1-27    [001]   595.551823: sched_wakeup:         comm=cyclictest pid=1538 prio=120 target_cpu=001

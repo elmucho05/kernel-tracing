@@ -48,7 +48,8 @@ trace-cmd record -e timer:hrtimer_start -e timer:hrtimer_expire_entry -e sched:s
 
 I numero di file di questa repo potrebbe cambiare e quindi la documentazione potrebbe non ricoprire tutti i nuovi file. Al momento il contenuto della directory è così distribuito.
 
-- `cyclictest-thread-loop-all-cores` : questo è un'estrazione del momento in cui il thread `cyclictest` si addormenta e del salto di 2 secondi comprendente tutto quello che accade nel kernel prima del momento del risveglio fino al momento stesso.
+### `cyclictest-thread-loop-all-cores`
+Questo è un'estrazione del momento in cui il thread `cyclictest` si addormenta e del salto di 2 secondi comprendente tutto quello che accade nel kernel prima del momento del risveglio fino al momento stesso.
 	- il file da cui è avvenuta tale estrazione è un file non presente nella repository poiché di dimensioni di 1.1GB.
 	- NOTA : in questo file possiamo notare del RUMORE derivante dagli altri core, perciò è stata fatta un'ulteriore estrazione dalla quale è derivata il file y
 
@@ -71,7 +72,6 @@ I numero di file di questa repo potrebbe cambiare e quindi la documentazione pot
 	- la seconda stack trace è una foto che viene scattata (dalla funzione probe_wakeup_sched_switch) all'atto del context switch, che quasi certamente accade nella funzione `__schedule`. Fornisce lo stato del processo che ha eseguito la `__schedule`. Potrebbe tanto essere il waker stesso, perché è arrivato alla `__schedule` direttamente nella stessa call chain della wakeup, quanto un diverso processo, che è stato interrotto da un interrupt. L'handler di tale interrupt è il codice che arriva ad eseguire la `__schedule`
 	
 	- NOTA: anche nel caso di waker che coincide con l'esecutore di `__schedule`, la seconda stack trace può non essere un sovrainsieme della prima, perché tra la wakeup e la `__schedule`, il waker può aver concluso l'esecuzione di funzioni che erano ancora da concludere all'atto della wakeup
-	- 
 	- La parte di traccia tra le due stack trace mostra tutto quello che fa la CPU su cui andrà in esecuzione il task svegliato. In particolare mostra ciò che tale CPU fa tra l'istante in cui il task viene svegliato e l'istante in cui il task finalmente va in esecuzione. Lo mostra col formato del function tracer.
 	- Per nostra sfortuna, è molto complessa, perché accade una cosa particolare. Nel mezzo della attesa di schedulazione del task, arriva un secondo interrupt, ed è quel secondo interrupt che porta alla schedule. Per quel motivo, le due stack trace all'inizio ed alla fine non hanno niente a che fare l'una con l'altra
 		- La riga in cui si vede l'arrivo del nuovo interrupt è questa: `kworker/-130       0dN..1   67us : preempt_schedule_irq <-el1_interrupt`
