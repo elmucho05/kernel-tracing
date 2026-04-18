@@ -29,7 +29,8 @@ Nello specifico, abbiamo utilizzato il campo **`current->comm`**:
     
 - **Utilizzo:** Attraverso la funzione `strncmp(current->comm, "cyclictest", 10)`, siamo in grado di verificare se il processo che sta eseguendo la funzione è esattamente l'istanza che vogliamo monitorare.
 
-
+> [!NOTE]
+> Nel codice modificato non appare più in modo esplicito `"cyclcitest"` perché è ora possibile modificare il nome del comando da tracciare(utile per sviluppi futuri). Questo meccanismo verrà spiegato in un secondo momento nella relativa documentazione. Il comportamento di default prevede che la variabile `target_process_name` contenga la stringa`cyclictest`
 
 - Le funzioni relative alla gestione dei timer risiedono in `kernel/time/time.c`
 - Le funzioni relative allo scheduling risiedono in `kernel/sched/core.c`
