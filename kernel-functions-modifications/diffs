@@ -1,278 +1,278 @@
-[1mdiff --git a/kernel/sched/core.c b/kernel/sched/core.c[m
-[1mindex da20fb6ea25a..c1bd0b19ebfa 100644[m
-[1m--- a/kernel/sched/core.c[m
-[1m+++ b/kernel/sched/core.c[m
-[36m@@ -100,6 +100,10 @@[m
- #include "../smpboot.h"[m
- #include "../locking/mutex.h"[m
- [m
-[32m+[m[32m// my changes //[m
-[32m+[m[32mextern char target_process_name[16];[m
-[32m+[m[32m// ---------- //[m
-[32m+[m
- EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_send_cpu);[m
- EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_send_cpumask);[m
- [m
-[36m@@ -3721,7 +3725,9 @@[m [mttwu_do_activate(struct rq *rq, struct task_struct *p, int wake_flags,[m
- 		delayacct_blkio_end(p);[m
- 		atomic_dec(&task_rq(p)->nr_iowait);[m
- 	}[m
-[31m-[m
-[32m+[m	[32mif (strncmp(p->comm, target_process_name, 16) == 0) {[m
-[32m+[m		[32mtrace_printk("%s %s %d\n",__func__, p->comm, p->pid);[m
-[32m+[m	[32m}[m
- 	activate_task(rq, p, en_flags);[m
- 	wakeup_preempt(rq, p, wake_flags);[m
- [m
-[36m@@ -4153,7 +4159,10 @@[m [mint try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)[m
- {[m
- 	guard(preempt)();[m
- 	int cpu, success = 0;[m
-[31m-[m
-[32m+[m	[32mif (strncmp(p->comm, target_process_name, 16) == 0) {[m
-[32m+[m		[32mtrace_printk("%s %s %d\n",__func__, p->comm, p->pid);[m
-[32m+[m	[32m}[m[41m	[m
-[32m+[m[41m	[m
- 	wake_flags |= WF_TTWU;[m
- [m
- 	if (p == current) {[m
-[36m@@ -5177,6 +5186,10 @@[m [mprepare_task_switch(struct rq *rq, struct task_struct *prev,[m
- 	kmap_local_sched_out();[m
- 	prepare_task(next);[m
- 	prepare_arch_switch(next);[m
-[32m+[m
-[32m+[m	[32mif (strncmp(prev->comm, target_process_name, 16) == 0) {[m
-[32m+[m		[32mtrace_printk("%s _end %s %d\n", __func__, prev->comm, prev->pid);[m
-[32m+[m	[32m}[m
- }[m
- [m
- /**[m
-[36m@@ -5204,7 +5217,9 @@[m [mstatic struct rq *finish_task_switch(struct task_struct *prev)[m
- 	struct rq *rq = this_rq();[m
- 	struct mm_struct *mm = rq->prev_mm;[m
- 	unsigned int prev_state;[m
-[31m-[m
-[32m+[m	[32mif (strncmp(current->comm, target_process_name, 16) == 0) {[m
-[32m+[m		[32mtrace_printk("%s _start %s %d\n", __func__,current->comm, current->pid);[m
-[32m+[m	[32m}[m
- 	/*[m
- 	 * The previous task will have left us with a preempt_count of 2[m
- 	 * because it left us after:[m
-[36m@@ -5287,6 +5302,11 @@[m [mstatic struct rq *finish_task_switch(struct task_struct *prev)[m
- 		put_task_struct_rcu_user(prev);[m
- 	}[m
- [m
-[32m+[m
-[32m+[m	[32mif (strncmp(current->comm, target_process_name, 16) == 0) {[m
-[32m+[m		[32mtrace_printk("%s _end %s %d\n", __func__,current->comm, current->pid);[m
-[32m+[m	[32m}[m
-[32m+[m
- 	return rq;[m
- }[m
- [m
-[1mdiff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c[m
-[1mindex 5bd6efe598f0..1a2ab332fd3f 100644[m
-[1m--- a/kernel/time/hrtimer.c[m
-[1m+++ b/kernel/time/hrtimer.c[m
-[36m@@ -49,6 +49,8 @@[m
- [m
- #include "tick-internal.h"[m
- [m
-[32m+[m[32m// my changes //[m
-[32m+[m[32mextern char target_process_name[16];[m
- /*[m
-  * Constants to set the queued state of the timer (INACTIVE, ENQUEUED)[m
-  *[m
-[36m@@ -1965,6 +1967,8 @@[m [mstatic __always_inline struct hrtimer *clock_base_next_timer_safe(struct hrtimer[m
- 	return next ? hrtimer_from_timerqueue_node(next) : NULL;[m
- }[m
- [m
-[32m+[m[32mstatic enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer);[m
-[32m+[m
- static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,[m
- 				 unsigned long flags, unsigned int active_mask)[m
- {[m
-[36m@@ -1976,6 +1980,7 @@[m [mstatic void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,[m
- 		struct hrtimer *timer;[m
- [m
- 		while ((timer = clock_base_next_timer(base))) {[m
-[32m+[m
- 			/*[m
- 			 * The immediate goal for using the softexpires is[m
- 			 * minimizing wakeups, not running timers at the[m
-[36m@@ -1990,7 +1995,17 @@[m [mstatic void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,[m
- 			 */[m
- 			if (basenow < hrtimer_get_softexpires(timer))[m
- 				break;[m
-[32m+[m			[32mif (timer->function == hrtimer_wakeup) {[m
-[32m+[m[32m                                struct hrtimer_sleeper *t;[m
-[32m+[m[32m                                struct task_struct *task;[m
- [m
-[32m+[m[32m                                t = container_of(timer, struct hrtimer_sleeper, timer);[m
-[32m+[m[32m                                task = t->task;[m
-[32m+[m
-[32m+[m[32m                                if (task != NULL && strncmp(task->comm, target_process_name, 16) == 0) {[m
-[32m+[m[32m                                        trace_printk("%s %s %d\n", __func__, task->comm, task->pid);[m
-[32m+[m[32m                                }[m
-[32m+[m[32m                        }[m
- 			__run_hrtimer(cpu_base, base, timer, basenow, flags);[m
- 			if (active_mask == HRTIMER_ACTIVE_SOFT)[m
- 				hrtimer_sync_wait_running(cpu_base, flags);[m
-[36m@@ -2086,7 +2101,7 @@[m [mvoid hrtimer_interrupt(struct clock_event_device *dev)[m
- 	ktime_t expires_next, now, entry_time, delta;[m
- 	unsigned long flags;[m
- 	int retries = 0;[m
-[31m-[m
-[32m+[m[41m	[m
- 	BUG_ON(!cpu_base->hres_active);[m
- 	cpu_base->nr_events++;[m
- 	dev->next_event = KTIME_MAX;[m
-[36m@@ -2186,10 +2201,15 @@[m [mstatic enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer)[m
- 	struct hrtimer_sleeper *t = container_of(timer, struct hrtimer_sleeper, timer);[m
- 	struct task_struct *task = t->task;[m
- [m
-[32m+[m	[32mif (task && strncmp(task->comm, target_process_name, 16) == 0) {[m
-[32m+[m		[32mtrace_printk("%s _start %s %d\n", __func__, task->comm, task->pid);[m
-[32m+[m	[32m}[m
- 	t->task = NULL;[m
- 	if (task)[m
- 		wake_up_process(task);[m
-[31m-[m
-[32m+[m	[32mif (task && strncmp(task->comm, target_process_name, 16) == 0) {[m
-[32m+[m[32m                trace_printk("%s _end %s %d\n", __func__, task->comm, task->pid);[m
-[32m+[m[32m        }[m
- 	return HRTIMER_NORESTART;[m
- }[m
- [m
-[36m@@ -2289,8 +2309,12 @@[m [mstatic int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod[m
- 		set_current_state(TASK_INTERRUPTIBLE|TASK_FREEZABLE);[m
- 		hrtimer_sleeper_start_expires(t, mode);[m
- [m
-[31m-		if (likely(t->task))[m
-[32m+[m		[32mif (likely(t->task)){[m
-[32m+[m			[32mif (strncmp(current->comm, target_process_name, 16) == 0) {[m
-[32m+[m[41m                [m		[32mtrace_printk("%s_start %s %d\n",__func__,current->comm,current->pid);[m
-[32m+[m[41m            [m		[32m}[m
- 			schedule();[m
-[32m+[m		[32m}[m
- [m
- 		hrtimer_cancel(&t->timer);[m
- 		mode = HRTIMER_MODE_ABS;[m
-[36m@@ -2299,16 +2323,24 @@[m [mstatic int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod[m
- [m
- 	__set_current_state(TASK_RUNNING);[m
- [m
-[31m-	if (!t->task)[m
-[32m+[m	[32mif (!t->task){[m
-[32m+[m		[32mif (strncmp(current->comm, target_process_name, 16) == 0) {[m
-[32m+[m			[32mtrace_printk("%s _end %s %d\n",__func__,current->comm, current->pid);[m
-[32m+[m		[32m}[m
- 		return 0;[m
-[32m+[m	[32m}[m
- [m
- 	restart = &current->restart_block;[m
- 	if (restart->nanosleep.type != TT_NONE) {[m
- 		ktime_t rem = hrtimer_expires_remaining(&t->timer);[m
- 		struct timespec64 rmt;[m
- [m
-[31m-		if (rem <= 0)[m
-[32m+[m		[32mif (rem <= 0){[m
-[32m+[m			[32mif (strncmp(current->comm, target_process_name, 16) == 0) {[m
-[32m+[m				[32mtrace_printk("%s:%d\n", current->comm, current->pid);[m
-[32m+[m			[32m}[m
- 			return 0;[m
-[32m+[m		[32m}[m
- 		rmt = ktime_to_timespec64(rem);[m
- [m
- 		return nanosleep_copyout(restart, &rmt);[m
-[36m@@ -2333,7 +2365,9 @@[m [mlong hrtimer_nanosleep(ktime_t rqtp, const enum hrtimer_mode mode, const clockid[m
- 	struct restart_block *restart;[m
- 	struct hrtimer_sleeper t;[m
- 	int ret;[m
-[31m-[m
-[32m+[m	[32mif(strncmp(current->comm,target_process_name,16)==0){[m
-[32m+[m		[32mtrace_printk("%s _start %s %d\n",__func__,current->comm,current->pid);[m
-[32m+[m	[32m}[m
- 	hrtimer_setup_sleeper_on_stack(&t, clockid, mode);[m
- 	hrtimer_set_expires_range_ns(&t.timer, rqtp, current->timer_slack_ns);[m
- 	ret = do_nanosleep(&t, mode);[m
-[36m@@ -2352,6 +2386,10 @@[m [mlong hrtimer_nanosleep(ktime_t rqtp, const enum hrtimer_mode mode, const clockid[m
- 	set_restart_fn(restart, hrtimer_nanosleep_restart);[m
- out:[m
- 	destroy_hrtimer_on_stack(&t.timer);[m
-[32m+[m
-[32m+[m	[32mif(strncmp(current->comm,target_process_name,16)==0){[m
-[32m+[m		[32mtrace_printk("%s _end %s %d\n",__func__,current->comm,current->pid);[m
-[32m+[m	[32m}[m
- 	return ret;[m
- }[m
- [m
-[1mdiff --git a/kernel/trace/trace.c b/kernel/trace/trace.c[m
-[1mindex e9455d46ec16..c382d32d8c1b 100644[m
-[1m--- a/kernel/trace/trace.c[m
-[1m+++ b/kernel/trace/trace.c[m
-[36m@@ -9174,6 +9174,53 @@[m [mrb_simple_write(struct file *filp, const char __user *ubuf,[m
- [m
- 	return cnt;[m
- }[m
-[32m+[m[32m//-----------------//[m
-[32m+[m[32m/* my changes */[m
-[32m+[m[32mchar target_process_name[16] = "cyclictest";[m
-[32m+[m[32mEXPORT_SYMBOL_GPL(target_process_name);[m
-[32m+[m[32m/*function invoked when reading the file*/[m
-[32m+[m[32mstatic ssize_t target_process_read(struct file *filp, char __user *ubuf, size_t cnt, loff_t *ppos)[m
-[32m+[m[32m{[m
-[32m+[m[32m    char buf[64];[m
-[32m+[m[32m    int r;[m
-[32m+[m
-[32m+[m[32m    r = snprintf(buf, sizeof(buf), "%s\n", target_process_name);[m
-[32m+[m
-[32m+[m[32m    // helper function of the kernel to send data to user space[m
-[32m+[m[32m    return simple_read_from_buffer(ubuf, cnt, ppos, buf, r);[m
-[32m+[m[32m}[m
-[32m+[m
-[32m+[m[32m/*function invoked when writing to the file*/[m
-[32m+[m[32mstatic ssize_t target_process_write(struct file *filp, const char __user *ubuf, size_t cnt, loff_t *ppos)[m
-[32m+[m[32m{[m
-[32m+[m[32m    char buf[16];[m
-[32m+[m
-[32m+[m[32m    if (cnt >= sizeof(buf))[m
-[32m+[m[32m        cnt = sizeof(buf) - 1;[m
-[32m+[m
-[32m+[m[32m    // copy data from user space to kernel space[m
-[32m+[m[32m    if (copy_from_user(buf, ubuf, cnt))[m
-[32m+[m[32m        return -EFAULT;[m
-[32m+[m
-[32m+[m[32m    buf[cnt] = '\0';[m
-[32m+[m[41m    [m
-[32m+[m[32m    // when you press enter you add \n so wee need to remove it[m
-[32m+[m[32m    if (cnt > 0 && buf[cnt-1] == '\n')[m
-[32m+[m[32m        buf[cnt-1] = '\0';[m
-[32m+[m
-[32m+[m[32m    strncpy(target_process_name, buf, sizeof(target_process_name));[m
-[32m+[m
-[32m+[m[32m    return cnt;[m
-[32m+[m[32m}[m
-[32m+[m[32mstatic const struct file_operations target_process_fops = {[m
-[32m+[m[32m    .open   = tracing_open_generic,[m
-[32m+[m[32m    .read   = target_process_read,[m
-[32m+[m[32m    .write  = target_process_write,[m
-[32m+[m[32m    .llseek = generic_file_llseek,[m
-[32m+[m[32m};[m
-[32m+[m
-[32m+[m[32m//------end of my changes-------//[m
-[32m+[m
- [m
- static const struct file_operations rb_simple_fops = {[m
- 	.open		= tracing_open_generic_tr,[m
-[36m@@ -10029,7 +10076,9 @@[m [minit_tracer_tracefs(struct trace_array *tr, struct dentry *d_tracer)[m
- [m
- 	trace_create_file("error_log", TRACE_MODE_WRITE, d_tracer,[m
- 			  tr, &tracing_err_log_fops);[m
-[31m-[m
-[32m+[m	[32m//------ my changes -------//[m
-[32m+[m	[32mtrace_create_file("target_process", 0644, d_tracer, NULL, &target_process_fops);[m
-[32m+[m	[32m//----- end my changes ----//[m
- 	ftrace_init_tracefs(tr, d_tracer);[m
- }[m
- [m
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index da20fb6ea25a..c1bd0b19ebfa 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -100,6 +100,10 @@
+ #include "../smpboot.h"
+ #include "../locking/mutex.h"
+ 
++// my changes //
++extern char target_process_name[16];
++// ---------- //
++
+ EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_send_cpu);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_send_cpumask);
+ 
+@@ -3721,7 +3725,9 @@ ttwu_do_activate(struct rq *rq, struct task_struct *p, int wake_flags,
+ 		delayacct_blkio_end(p);
+ 		atomic_dec(&task_rq(p)->nr_iowait);
+ 	}
+-
++	if (strncmp(p->comm, target_process_name, 16) == 0) {
++		trace_printk("%s %s %d\n",__func__, p->comm, p->pid);
++	}
+ 	activate_task(rq, p, en_flags);
+ 	wakeup_preempt(rq, p, wake_flags);
+ 
+@@ -4153,7 +4159,10 @@ int try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
+ {
+ 	guard(preempt)();
+ 	int cpu, success = 0;
+-
++	if (strncmp(p->comm, target_process_name, 16) == 0) {
++		trace_printk("%s %s %d\n",__func__, p->comm, p->pid);
++	}	
++	
+ 	wake_flags |= WF_TTWU;
+ 
+ 	if (p == current) {
+@@ -5177,6 +5186,10 @@ prepare_task_switch(struct rq *rq, struct task_struct *prev,
+ 	kmap_local_sched_out();
+ 	prepare_task(next);
+ 	prepare_arch_switch(next);
++
++	if (strncmp(prev->comm, target_process_name, 16) == 0) {
++		trace_printk("%s _end %s %d\n", __func__, prev->comm, prev->pid);
++	}
+ }
+ 
+ /**
+@@ -5204,7 +5217,9 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+ 	struct rq *rq = this_rq();
+ 	struct mm_struct *mm = rq->prev_mm;
+ 	unsigned int prev_state;
+-
++	if (strncmp(current->comm, target_process_name, 16) == 0) {
++		trace_printk("%s _start %s %d\n", __func__,current->comm, current->pid);
++	}
+ 	/*
+ 	 * The previous task will have left us with a preempt_count of 2
+ 	 * because it left us after:
+@@ -5287,6 +5302,11 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+ 		put_task_struct_rcu_user(prev);
+ 	}
+ 
++
++	if (strncmp(current->comm, target_process_name, 16) == 0) {
++		trace_printk("%s _end %s %d\n", __func__,current->comm, current->pid);
++	}
++
+ 	return rq;
+ }
+ 
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 5bd6efe598f0..1a2ab332fd3f 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -49,6 +49,8 @@
+ 
+ #include "tick-internal.h"
+ 
++// my changes //
++extern char target_process_name[16];
+ /*
+  * Constants to set the queued state of the timer (INACTIVE, ENQUEUED)
+  *
+@@ -1965,6 +1967,8 @@ static __always_inline struct hrtimer *clock_base_next_timer_safe(struct hrtimer
+ 	return next ? hrtimer_from_timerqueue_node(next) : NULL;
+ }
+ 
++static enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer);
++
+ static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
+ 				 unsigned long flags, unsigned int active_mask)
+ {
+@@ -1976,6 +1980,7 @@ static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
+ 		struct hrtimer *timer;
+ 
+ 		while ((timer = clock_base_next_timer(base))) {
++
+ 			/*
+ 			 * The immediate goal for using the softexpires is
+ 			 * minimizing wakeups, not running timers at the
+@@ -1990,7 +1995,17 @@ static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
+ 			 */
+ 			if (basenow < hrtimer_get_softexpires(timer))
+ 				break;
++			if (timer->function == hrtimer_wakeup) {
++                                struct hrtimer_sleeper *t;
++                                struct task_struct *task;
+ 
++                                t = container_of(timer, struct hrtimer_sleeper, timer);
++                                task = t->task;
++
++                                if (task != NULL && strncmp(task->comm, target_process_name, 16) == 0) {
++                                        trace_printk("%s %s %d\n", __func__, task->comm, task->pid);
++                                }
++                        }
+ 			__run_hrtimer(cpu_base, base, timer, basenow, flags);
+ 			if (active_mask == HRTIMER_ACTIVE_SOFT)
+ 				hrtimer_sync_wait_running(cpu_base, flags);
+@@ -2086,7 +2101,7 @@ void hrtimer_interrupt(struct clock_event_device *dev)
+ 	ktime_t expires_next, now, entry_time, delta;
+ 	unsigned long flags;
+ 	int retries = 0;
+-
++	
+ 	BUG_ON(!cpu_base->hres_active);
+ 	cpu_base->nr_events++;
+ 	dev->next_event = KTIME_MAX;
+@@ -2186,10 +2201,15 @@ static enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer)
+ 	struct hrtimer_sleeper *t = container_of(timer, struct hrtimer_sleeper, timer);
+ 	struct task_struct *task = t->task;
+ 
++	if (task && strncmp(task->comm, target_process_name, 16) == 0) {
++		trace_printk("%s _start %s %d\n", __func__, task->comm, task->pid);
++	}
+ 	t->task = NULL;
+ 	if (task)
+ 		wake_up_process(task);
+-
++	if (task && strncmp(task->comm, target_process_name, 16) == 0) {
++                trace_printk("%s _end %s %d\n", __func__, task->comm, task->pid);
++        }
+ 	return HRTIMER_NORESTART;
+ }
+ 
+@@ -2289,8 +2309,12 @@ static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod
+ 		set_current_state(TASK_INTERRUPTIBLE|TASK_FREEZABLE);
+ 		hrtimer_sleeper_start_expires(t, mode);
+ 
+-		if (likely(t->task))
++		if (likely(t->task)){
++			if (strncmp(current->comm, target_process_name, 16) == 0) {
++                		trace_printk("%s_start %s %d\n",__func__,current->comm,current->pid);
++            		}
+ 			schedule();
++		}
+ 
+ 		hrtimer_cancel(&t->timer);
+ 		mode = HRTIMER_MODE_ABS;
+@@ -2299,16 +2323,24 @@ static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod
+ 
+ 	__set_current_state(TASK_RUNNING);
+ 
+-	if (!t->task)
++	if (!t->task){
++		if (strncmp(current->comm, target_process_name, 16) == 0) {
++			trace_printk("%s _end %s %d\n",__func__,current->comm, current->pid);
++		}
+ 		return 0;
++	}
+ 
+ 	restart = &current->restart_block;
+ 	if (restart->nanosleep.type != TT_NONE) {
+ 		ktime_t rem = hrtimer_expires_remaining(&t->timer);
+ 		struct timespec64 rmt;
+ 
+-		if (rem <= 0)
++		if (rem <= 0){
++			if (strncmp(current->comm, target_process_name, 16) == 0) {
++				trace_printk("%s:%d\n", current->comm, current->pid);
++			}
+ 			return 0;
++		}
+ 		rmt = ktime_to_timespec64(rem);
+ 
+ 		return nanosleep_copyout(restart, &rmt);
+@@ -2333,7 +2365,9 @@ long hrtimer_nanosleep(ktime_t rqtp, const enum hrtimer_mode mode, const clockid
+ 	struct restart_block *restart;
+ 	struct hrtimer_sleeper t;
+ 	int ret;
+-
++	if(strncmp(current->comm,target_process_name,16)==0){
++		trace_printk("%s _start %s %d\n",__func__,current->comm,current->pid);
++	}
+ 	hrtimer_setup_sleeper_on_stack(&t, clockid, mode);
+ 	hrtimer_set_expires_range_ns(&t.timer, rqtp, current->timer_slack_ns);
+ 	ret = do_nanosleep(&t, mode);
+@@ -2352,6 +2386,10 @@ long hrtimer_nanosleep(ktime_t rqtp, const enum hrtimer_mode mode, const clockid
+ 	set_restart_fn(restart, hrtimer_nanosleep_restart);
+ out:
+ 	destroy_hrtimer_on_stack(&t.timer);
++
++	if(strncmp(current->comm,target_process_name,16)==0){
++		trace_printk("%s _end %s %d\n",__func__,current->comm,current->pid);
++	}
+ 	return ret;
+ }
+ 
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index e9455d46ec16..c382d32d8c1b 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -9174,6 +9174,53 @@ rb_simple_write(struct file *filp, const char __user *ubuf,
+ 
+ 	return cnt;
+ }
++//-----------------//
++/* my changes */
++char target_process_name[16] = "cyclictest";
++EXPORT_SYMBOL_GPL(target_process_name);
++/*function invoked when reading the file*/
++static ssize_t target_process_read(struct file *filp, char __user *ubuf, size_t cnt, loff_t *ppos)
++{
++    char buf[64];
++    int r;
++
++    r = snprintf(buf, sizeof(buf), "%s\n", target_process_name);
++
++    // helper function of the kernel to send data to user space
++    return simple_read_from_buffer(ubuf, cnt, ppos, buf, r);
++}
++
++/*function invoked when writing to the file*/
++static ssize_t target_process_write(struct file *filp, const char __user *ubuf, size_t cnt, loff_t *ppos)
++{
++    char buf[16];
++
++    if (cnt >= sizeof(buf))
++        cnt = sizeof(buf) - 1;
++
++    // copy data from user space to kernel space
++    if (copy_from_user(buf, ubuf, cnt))
++        return -EFAULT;
++
++    buf[cnt] = '\0';
++    
++    // when you press enter you add \n so wee need to remove it
++    if (cnt > 0 && buf[cnt-1] == '\n')
++        buf[cnt-1] = '\0';
++
++    strncpy(target_process_name, buf, sizeof(target_process_name));
++
++    return cnt;
++}
++static const struct file_operations target_process_fops = {
++    .open   = tracing_open_generic,
++    .read   = target_process_read,
++    .write  = target_process_write,
++    .llseek = generic_file_llseek,
++};
++
++//------end of my changes-------//
++
+ 
+ static const struct file_operations rb_simple_fops = {
+ 	.open		= tracing_open_generic_tr,
+@@ -10029,7 +10076,9 @@ init_tracer_tracefs(struct trace_array *tr, struct dentry *d_tracer)
+ 
+ 	trace_create_file("error_log", TRACE_MODE_WRITE, d_tracer,
+ 			  tr, &tracing_err_log_fops);
+-
++	//------ my changes -------//
++	trace_create_file("target_process", 0644, d_tracer, NULL, &target_process_fops);
++	//----- end my changes ----//
+ 	ftrace_init_tracefs(tr, d_tracer);
+ }
+
