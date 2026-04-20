@@ -263,6 +263,9 @@ static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod
 ### `_run_queues`
 
 ```c
+// need to add this otherwise the if statement : if(timer->function==hrtimer_wakeup) does not work
+static enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer);
+
 static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
                                  unsigned long flags, unsigned int active_mask)
 {
