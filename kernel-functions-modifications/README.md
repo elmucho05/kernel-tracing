@@ -259,3 +259,54 @@ static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod
         return -ERESTART_RESTARTBLOCK;
 }
 ```
+
+### `_run_queues`
+
+```c
+static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
+                                 unsigned long flags, unsigned int active_mask)
+{
+        unsigned int active = cpu_base->active_bases & active_mask;
+        struct hrtimer_clock_base *base;
+
+        for_each_active_base(base, cpu_base, active) {
+                ktime_t basenow = ktime_add(now, base->offset);
+                struct hrtimer *timer;
+
+                while ((timer = clock_base_next_timer(base))) {
+
+                        /*
+                         * The immediate goal for using the softexpires is
+                         * minimizing wakeups, not running timers at the
+                         * earliest interrupt after their soft expiration.
+                         * This allows us to avoid using a Priority Search
+                         * Tree, which can answer a stabbing query for
+                         * overlapping intervals and instead use the simple
+                         * BST we already have.
+                         * We don't add extra wakeups by delaying timers that
+                         * are right-of a not yet expired timer, because that
+                         * timer will have to trigger a wakeup anyway.
+                         */
+                        if (basenow < hrtimer_get_softexpires(timer))
+                                break;
+                        if (timer->function == hrtimer_wakeup) {
+                                struct hrtimer_sleeper *t;
+                                struct task_struct *task;
+
+                                t = container_of(timer, struct hrtimer_sleeper, timer);
+                                task = t->task;
+
+                                if (task != NULL && strncmp(task->comm, target_process_name, 16) == 0) {
+                                        trace_printk("%s %s %d\n", __func__, task->comm, task->pid);
+                                }
+                        }
+                        __run_hrtimer(cpu_base, base, timer, basenow, flags);
+                        if (active_mask == HRTIMER_ACTIVE_SOFT)
+                                hrtimer_sync_wait_running(cpu_base, flags);
+                }
+        }
+}
+```
+
+
+Una volta fatte queste due cose, l'ultimo passo sarà rendere questo extra tracer generico: aggiungeremo un file nel sysfs, tramite il quale si potrà decidere di quale comando si fa il tracing. Così avremo un meccanismo generale per tracciare il ciclo di addormentamento e risveglio di qualsiasi comando
