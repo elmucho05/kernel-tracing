@@ -1,0 +1,220 @@
+From 33c38ef15157e927f0424f720f8f2f742c6ce34f Mon Sep 17 00:00:00 2001
+From: elmucho05 <algertsuta@gmail.com>
+Date: Fri, 24 Apr 2026 14:38:35 +0200
+Subject: [PATCH 2/2] sched/time: Added trace_printk in sched and hrtimer
+ functions do_nanosleep, finish_task_switch, and hrtimer_wakeup to track the
+ exact lifecycle of the process defined target_process.
+
+---
+ kernel/sched/core.c   | 22 +++++++++++++++----
+ kernel/time/hrtimer.c | 50 +++++++++++++++++++++++++++++++++++++------
+ 2 files changed, 62 insertions(+), 10 deletions(-)
+
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index da20fb6ea25a..a3bd45dc9327 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -100,6 +100,10 @@
+ #include "../smpboot.h"
+ #include "../locking/mutex.h"
+ 
++// my changes //
++extern char target_process_name[16];
++// ---------- //
++
+ EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_send_cpu);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(ipi_send_cpumask);
+ 
+@@ -3721,7 +3725,9 @@ ttwu_do_activate(struct rq *rq, struct task_struct *p, int wake_flags,
+ 		delayacct_blkio_end(p);
+ 		atomic_dec(&task_rq(p)->nr_iowait);
+ 	}
+-
++	if (strncmp(p->comm, target_process_name, 16) == 0) {
++		trace_printk("%s %s %d\n",__func__, p->comm, p->pid);
++	}
+ 	activate_task(rq, p, en_flags);
+ 	wakeup_preempt(rq, p, wake_flags);
+ 
+@@ -4153,7 +4159,10 @@ int try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
+ {
+ 	guard(preempt)();
+ 	int cpu, success = 0;
+-
++	if (strncmp(p->comm, target_process_name, 16) == 0) {
++		trace_printk("%s %s %d\n",__func__, p->comm, p->pid);
++	}	
++	
+ 	wake_flags |= WF_TTWU;
+ 
+ 	if (p == current) {
+@@ -5177,6 +5186,10 @@ prepare_task_switch(struct rq *rq, struct task_struct *prev,
+ 	kmap_local_sched_out();
+ 	prepare_task(next);
+ 	prepare_arch_switch(next);
++
++	if (strncmp(prev->comm, target_process_name, 16) == 0) {
++		trace_printk("%s _end %s %d\n", __func__, prev->comm, prev->pid);
++	}
+ }
+ 
+ /**
+@@ -5204,7 +5217,9 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+ 	struct rq *rq = this_rq();
+ 	struct mm_struct *mm = rq->prev_mm;
+ 	unsigned int prev_state;
+-
++	if (strncmp(current->comm, target_process_name, 16) == 0) {
++		trace_printk("%s _start %s %d\n", __func__,current->comm, current->pid);
++	}
+ 	/*
+ 	 * The previous task will have left us with a preempt_count of 2
+ 	 * because it left us after:
+@@ -5286,7 +5301,6 @@ static struct rq *finish_task_switch(struct task_struct *prev)
+ 
+ 		put_task_struct_rcu_user(prev);
+ 	}
+-
+ 	return rq;
+ }
+ 
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 5bd6efe598f0..1a2ab332fd3f 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -49,6 +49,8 @@
+ 
+ #include "tick-internal.h"
+ 
++// my changes //
++extern char target_process_name[16];
+ /*
+  * Constants to set the queued state of the timer (INACTIVE, ENQUEUED)
+  *
+@@ -1965,6 +1967,8 @@ static __always_inline struct hrtimer *clock_base_next_timer_safe(struct hrtimer
+ 	return next ? hrtimer_from_timerqueue_node(next) : NULL;
+ }
+ 
++static enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer);
++
+ static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
+ 				 unsigned long flags, unsigned int active_mask)
+ {
+@@ -1976,6 +1980,7 @@ static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
+ 		struct hrtimer *timer;
+ 
+ 		while ((timer = clock_base_next_timer(base))) {
++
+ 			/*
+ 			 * The immediate goal for using the softexpires is
+ 			 * minimizing wakeups, not running timers at the
+@@ -1990,7 +1995,17 @@ static void __hrtimer_run_queues(struct hrtimer_cpu_base *cpu_base, ktime_t now,
+ 			 */
+ 			if (basenow < hrtimer_get_softexpires(timer))
+ 				break;
++			if (timer->function == hrtimer_wakeup) {
++                                struct hrtimer_sleeper *t;
++                                struct task_struct *task;
+ 
++                                t = container_of(timer, struct hrtimer_sleeper, timer);
++                                task = t->task;
++
++                                if (task != NULL && strncmp(task->comm, target_process_name, 16) == 0) {
++                                        trace_printk("%s %s %d\n", __func__, task->comm, task->pid);
++                                }
++                        }
+ 			__run_hrtimer(cpu_base, base, timer, basenow, flags);
+ 			if (active_mask == HRTIMER_ACTIVE_SOFT)
+ 				hrtimer_sync_wait_running(cpu_base, flags);
+@@ -2086,7 +2101,7 @@ void hrtimer_interrupt(struct clock_event_device *dev)
+ 	ktime_t expires_next, now, entry_time, delta;
+ 	unsigned long flags;
+ 	int retries = 0;
+-
++	
+ 	BUG_ON(!cpu_base->hres_active);
+ 	cpu_base->nr_events++;
+ 	dev->next_event = KTIME_MAX;
+@@ -2186,10 +2201,15 @@ static enum hrtimer_restart hrtimer_wakeup(struct hrtimer *timer)
+ 	struct hrtimer_sleeper *t = container_of(timer, struct hrtimer_sleeper, timer);
+ 	struct task_struct *task = t->task;
+ 
++	if (task && strncmp(task->comm, target_process_name, 16) == 0) {
++		trace_printk("%s _start %s %d\n", __func__, task->comm, task->pid);
++	}
+ 	t->task = NULL;
+ 	if (task)
+ 		wake_up_process(task);
+-
++	if (task && strncmp(task->comm, target_process_name, 16) == 0) {
++                trace_printk("%s _end %s %d\n", __func__, task->comm, task->pid);
++        }
+ 	return HRTIMER_NORESTART;
+ }
+ 
+@@ -2289,8 +2309,12 @@ static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod
+ 		set_current_state(TASK_INTERRUPTIBLE|TASK_FREEZABLE);
+ 		hrtimer_sleeper_start_expires(t, mode);
+ 
+-		if (likely(t->task))
++		if (likely(t->task)){
++			if (strncmp(current->comm, target_process_name, 16) == 0) {
++                		trace_printk("%s_start %s %d\n",__func__,current->comm,current->pid);
++            		}
+ 			schedule();
++		}
+ 
+ 		hrtimer_cancel(&t->timer);
+ 		mode = HRTIMER_MODE_ABS;
+@@ -2299,16 +2323,24 @@ static int __sched do_nanosleep(struct hrtimer_sleeper *t, enum hrtimer_mode mod
+ 
+ 	__set_current_state(TASK_RUNNING);
+ 
+-	if (!t->task)
++	if (!t->task){
++		if (strncmp(current->comm, target_process_name, 16) == 0) {
++			trace_printk("%s _end %s %d\n",__func__,current->comm, current->pid);
++		}
+ 		return 0;
++	}
+ 
+ 	restart = &current->restart_block;
+ 	if (restart->nanosleep.type != TT_NONE) {
+ 		ktime_t rem = hrtimer_expires_remaining(&t->timer);
+ 		struct timespec64 rmt;
+ 
+-		if (rem <= 0)
++		if (rem <= 0){
++			if (strncmp(current->comm, target_process_name, 16) == 0) {
++				trace_printk("%s:%d\n", current->comm, current->pid);
++			}
+ 			return 0;
++		}
+ 		rmt = ktime_to_timespec64(rem);
+ 
+ 		return nanosleep_copyout(restart, &rmt);
+@@ -2333,7 +2365,9 @@ long hrtimer_nanosleep(ktime_t rqtp, const enum hrtimer_mode mode, const clockid
+ 	struct restart_block *restart;
+ 	struct hrtimer_sleeper t;
+ 	int ret;
+-
++	if(strncmp(current->comm,target_process_name,16)==0){
++		trace_printk("%s _start %s %d\n",__func__,current->comm,current->pid);
++	}
+ 	hrtimer_setup_sleeper_on_stack(&t, clockid, mode);
+ 	hrtimer_set_expires_range_ns(&t.timer, rqtp, current->timer_slack_ns);
+ 	ret = do_nanosleep(&t, mode);
+@@ -2352,6 +2386,10 @@ long hrtimer_nanosleep(ktime_t rqtp, const enum hrtimer_mode mode, const clockid
+ 	set_restart_fn(restart, hrtimer_nanosleep_restart);
+ out:
+ 	destroy_hrtimer_on_stack(&t.timer);
++
++	if(strncmp(current->comm,target_process_name,16)==0){
++		trace_printk("%s _end %s %d\n",__func__,current->comm,current->pid);
++	}
+ 	return ret;
+ }
+ 
+-- 
+2.47.3
+
