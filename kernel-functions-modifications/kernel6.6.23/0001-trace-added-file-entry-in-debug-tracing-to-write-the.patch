@@ -1,0 +1,81 @@
+From 52f9261b19ed51b8f96340e38df035acdca7792e Mon Sep 17 00:00:00 2001
+From: elmucho05 <algertsuta@gmail.com>
+Date: Sun, 26 Apr 2026 15:36:12 +0200
+Subject: [PATCH 1/2] trace: added file entry in debug/tracing to write the
+ name of a target_process to trace
+
+---
+ kernel/trace/trace.c | 50 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 552cd31bd879..e82da9c4485a 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -9312,6 +9312,53 @@ rb_simple_write(struct file *filp, const char __user *ubuf,
+ 
+ 	return cnt;
+ }
++//-----------------//
++/* my changes */
++char target_process_name[16] = "cyclictest";
++EXPORT_SYMBOL_GPL(target_process_name);
++/*function invoked when reading the file*/
++static ssize_t target_process_read(struct file *filp, char __user *ubuf, size_t cnt, loff_t *ppos)
++{
++    char buf[64];
++    int r;
++
++    r = snprintf(buf, sizeof(buf), "%s\n", target_process_name);
++
++    // helper function of the kernel to send data to user space
++    return simple_read_from_buffer(ubuf, cnt, ppos, buf, r);
++}
++
++/*function invoked when writing to the file*/
++static ssize_t target_process_write(struct file *filp, const char __user *ubuf, size_t cnt, loff_t *ppos)
++{
++    char buf[16];
++
++    if (cnt >= sizeof(buf))
++        cnt = sizeof(buf) - 1;
++
++    // copy data from user space to kernel space
++    if (copy_from_user(buf, ubuf, cnt))
++        return -EFAULT;
++
++    buf[cnt] = '\0';
++    
++    // when you press enter you add \n so wee need to remove it
++    if (cnt > 0 && buf[cnt-1] == '\n')
++        buf[cnt-1] = '\0';
++
++    strncpy(target_process_name, buf, sizeof(target_process_name));
++
++    return cnt;
++}
++static const struct file_operations target_process_fops = {
++    .open   = tracing_open_generic,
++    .read   = target_process_read,
++    .write  = target_process_write,
++    .llseek = generic_file_llseek,
++};
++
++//------end of my changes-------//
++
+ 
+ static const struct file_operations rb_simple_fops = {
+ 	.open		= tracing_open_generic_tr,
+@@ -9829,6 +9876,9 @@ init_tracer_tracefs(struct trace_array *tr, struct dentry *d_tracer)
+ 
+ 	trace_create_file("error_log", TRACE_MODE_WRITE, d_tracer,
+ 			  tr, &tracing_err_log_fops);
++       //------ my changes -------//
++       trace_create_file("target_process", 0644, d_tracer, NULL, &target_process_fops);
++       //----- end my changes ----//
+ 
+ 	for_each_tracing_cpu(cpu)
+ 		tracing_init_tracefs_percpu(tr, cpu);
+-- 
+2.47.3
+
