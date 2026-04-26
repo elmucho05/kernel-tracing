@@ -1,7 +1,7 @@
-From 029eb2cce6ea3145d649f60d7c8e31017826e951 Mon Sep 17 00:00:00 2001
+From 72686f9e8cb05992055dc026a64ac709c14946a1 Mon Sep 17 00:00:00 2001
 From: elmucho05 <algertsuta@gmail.com>
 Date: Sun, 26 Apr 2026 15:49:12 +0200
-Subject: [PATCH 2/2] trace_printk for core.c and hrtimer.c in kernel 6.6.23
+Subject: [PATCH 2/2] kernel6-6-23: added trace_printk for kernel functions
 
 ---
  kernel/sched/core.c   | 21 +++++++++++++++----

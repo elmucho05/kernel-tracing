@@ -1,8 +1,7 @@
-From 52f9261b19ed51b8f96340e38df035acdca7792e Mon Sep 17 00:00:00 2001
+From 5cba24b03b12dd88f46efbde1a8d30bcac50b3f0 Mon Sep 17 00:00:00 2001
 From: elmucho05 <algertsuta@gmail.com>
 Date: Sun, 26 Apr 2026 15:36:12 +0200
-Subject: [PATCH 1/2] trace: added file entry in debug/tracing to write the
- name of a target_process to trace
+Subject: [PATCH 1/2] kernel6-6-23: added file target_process in kernel/debug
 
 ---
  kernel/trace/trace.c | 50 ++++++++++++++++++++++++++++++++++++++++++++
