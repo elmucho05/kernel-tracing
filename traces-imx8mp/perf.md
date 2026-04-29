@@ -1,4 +1,10 @@
 # Guida all'uso di `perf` per l'analisi cache (i.MX8)
+
+> [!TiP]
+> Performance counters for Linux are a new kernel-based subsystem that provide a framework for all things performance analysis. It covers hardware level (CPU/PMU, Performance Monitoring Unit) features and software features (software counters, tracepoints) as well.
+
+
+
 ## 1. Comandi di Esplorazione
 
 - `perf list`: Elenca tutti i simboli degli eventi tracciabili dal kernel.
@@ -12,13 +18,17 @@
 
 Il comando `perf stat` viene utilizzato per raccogliere statistiche aggregate durante l'esecuzione di un programma.
 
-| **Opzione**    | **Nome**           | **Descrizione**                                                            |
-| -------------- | ------------------ | -------------------------------------------------------------------------- |
-| **`-e`**       | **Event**          | Specifica la lista di eventi hardware da monitorare (separati da virgola). |
-| **`-a`**       | **All CPUs**       | Raccoglie i dati da tutti i core della CPU contemporaneamente.             |
-| **`-A`**       | **No aggregation** | Mostra i risultati separati per ogni singolo core (fondamentale per L1).   |
-| **`-C <n>`**   | **Core**           | Monitora esclusivamente il core specifico indicato (es. `-C 1`).           |
-| **`-p <PID>`** | **PID**            | Si aggancia a un processo già in esecuzione tramite il suo identificativo. |
+| **Opzione**     | **Nome**                 | **Descrizione**                                                                                                                                                |
+| --------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`-e`**        | **Event**                | Specifica la lista di eventi hardware da monitorare (separati da virgola).                                                                                     |
+| **`-a`**        | **All CPUs**             | Raccoglie i dati da tutti i core della CPU contemporaneamente.                                                                                                 |
+| **`-A`**        | **No aggregation**       | Mostra i risultati separati per ogni singolo core (fondamentale per L1).                                                                                       |
+| **`-C <n>`**    | **Core**                 | Monitora esclusivamente il core specifico indicato (es. `-C 1`).                                                                                               |
+| **`-p <PID>`**  | **PID**                  | Si aggancia a un processo già in esecuzione tramite il suo identificativo.                                                                                     |
+| `-d`            | **Detailed**             | Print more detailed statistics, can be specified up to 3 times. Detailed events, L1 and LLC data cache. But you can add up to 2 more `-d` to have more events. |
+| **`-o`**        | **Output file**          | Save stat output to file                                                                                                                                       |
+| **`report -i`** | **Read from input file** | Perf stat with reports what it reads from a perf.data file                                                                                                     |
+|                 |                          |                                                                                                                                                                |
 
 
 ## 3. Eventi hardware 
@@ -39,6 +49,11 @@ perf list cache
 perf list pmu
 ```
 
+oppure anche un semplice:
+```sh
+perf list
+```
+
 
 ## 4. Esempi di comandi 
 
@@ -48,6 +63,11 @@ Utile per vedere il "rumore di fondo" del sistema su ogni CPU:
 ```
 perf stat -a -A -e L1-dcache-loads,L1-dcache-load-misses,l2d_cache_refill sleep 5
 ```
+
+> [!NOTE]
+> If there is no -e specified in perf stat, on hybrid platform, besides of software events, following events are created and added to event list in order.
+> `cpu_core/cycles/, cpu_atom/cycles/, cpu_core/instructions/, cpu_atom/instructions/, cpu_core/branches/, cpu_atom/branches/, cpu_core/branch-misses/, cpu_atom/branch-misses/`
+
 
 ### Analisi di un processo target 
 
@@ -73,3 +93,17 @@ perf stat -e L1-dcache-load-misses,l2d_cache_refill cyclictest -t 1 -a 1 -p 99 -
 
 - **L1 Misses alti:** Problema interno all'algoritmo del programma (codice inefficiente).
 - **L2 Refill alti (sotto interferenza):** Dimostra che un "vicino rumoroso" (Core 2) sta espellendo i dati del nostro task (Core 1) dalla cache condivisa, forzando accessi lenti alla RAM e causando latenza Real-Time.
+
+## Info utili
+A volte per riuscire a capire meglio la struttura della cache ci sono dei modi "bruteforce" per controllare le info. Dato che su linux TUTTO è un file si può fare uso di `/sys`
+
+```sh
+ls /sys/devices/system/cpu/cpu0/cache/index0/
+
+# level  shared_cpu_list	shared_cpu_map	type  uevent
+```
+
+
+
+
+
